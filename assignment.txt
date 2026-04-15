@@ -1,0 +1,11 @@
+ASSIGNMENT
+Create an application that would do "Accredited Investor Verification".
+ 
+The high-level requirements are provided here:  https://copilot.microsoft.com/shares/TqU5c6PsHBKiobAPH7ZSn
+Like I said, I will look for strong engineering and implementation rigor....and use of latest technologies to implement it right.
+ 
+The focus is on developing the Accreditation verification system — home page, on-boarding, accreditation request lifecycle/workflow, communication between the requester & issuer for additional info, final disposition of the request in the form of a letter, etc.,  Take into account as much of the other context in the thread as you can, to create a solid system. 
+ 
+"Get Free Accreditation" on the Realtyslices.com site is a quick-and-dirty implementation of the experience... I expect you to over-achieve, especially with today's AI tools.
+ 
+Please reach out to me if you need more context.

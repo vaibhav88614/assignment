@@ -1,0 +1,94 @@
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  type ReactNode,
+} from 'react';
+import api from '../api/client';
+import type { User, TokenResponse } from '../types';
+
+interface AuthContextType {
+  user: User | null;
+  loading: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  register: (data: {
+    email: string;
+    password: string;
+    first_name: string;
+    last_name: string;
+    phone?: string;
+    role: string;
+  }) => Promise<void>;
+  logout: () => void;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchUser = useCallback(async () => {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+    try {
+      const { data } = await api.get<User>('/auth/me');
+      setUser(data);
+    } catch {
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchUser();
+  }, [fetchUser]);
+
+  const login = async (email: string, password: string) => {
+    const { data } = await api.post<TokenResponse>('/auth/login', {
+      email,
+      password,
+    });
+    localStorage.setItem('access_token', data.access_token);
+    localStorage.setItem('refresh_token', data.refresh_token);
+    await fetchUser();
+  };
+
+  const register = async (regData: {
+    email: string;
+    password: string;
+    first_name: string;
+    last_name: string;
+    phone?: string;
+    role: string;
+  }) => {
+    await api.post('/auth/register', regData);
+    await login(regData.email, regData.password);
+  };
+
+  const logout = () => {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    setUser(null);
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth() {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
+  return ctx;
+}

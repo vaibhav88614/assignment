@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Accredited Investor Verification Letter</title>
+  <style>
+    @page { size: letter; margin: 1in; }
+    body {
+      font-family: 'Georgia', 'Times New Roman', serif;
+      color: #1a1a1a;
+      line-height: 1.6;
+      font-size: 12pt;
+    }
+    .header {
+      text-align: center;
+      border-bottom: 3px solid #1e3a5f;
+      padding-bottom: 20px;
+      margin-bottom: 30px;
+    }
+    .header h1 {
+      font-size: 22pt;
+      color: #1e3a5f;
+      margin: 0 0 5px 0;
+      letter-spacing: 1px;
+    }
+    .header p {
+      margin: 2px 0;
+      font-size: 10pt;
+      color: #555;
+    }
+    .letter-meta {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 30px;
+      font-size: 10pt;
+    }
+    .letter-meta .left, .letter-meta .right {
+      display: inline-block;
+    }
+    .letter-meta .right {
+      text-align: right;
+    }
+    .body-content {
+      margin-bottom: 30px;
+    }
+    .body-content p {
+      margin: 12px 0;
+      text-align: justify;
+    }
+    .highlight-box {
+      background: #f0f5fa;
+      border: 1px solid #1e3a5f;
+      border-radius: 6px;
+      padding: 15px 20px;
+      margin: 20px 0;
+    }
+    .highlight-box table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .highlight-box td {
+      padding: 5px 10px;
+      vertical-align: top;
+    }
+    .highlight-box td:first-child {
+      font-weight: bold;
+      width: 200px;
+      color: #1e3a5f;
+    }
+    .disclaimer {
+      font-size: 9pt;
+      color: #777;
+      border-top: 1px solid #ccc;
+      padding-top: 15px;
+      margin-top: 40px;
+    }
+    .signature-block {
+      margin-top: 50px;
+    }
+    .signature-line {
+      border-top: 1px solid #333;
+      width: 250px;
+      margin-top: 40px;
+      padding-top: 5px;
+    }
+    .watermark {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-45deg);
+      font-size: 80pt;
+      color: rgba(30, 58, 95, 0.04);
+      white-space: nowrap;
+      z-index: -1;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="watermark">VERIFIED</div>
+
+  <div class="header">
+    <h1>{{ issuer_org }}</h1>
+    <p>{{ issuer_address }}</p>
+    <p>Accredited Investor Verification Service</p>
+  </div>
+
+  <div class="letter-meta">
+    <div class="left">
+      <strong>Letter No:</strong> {{ letter_number }}<br>
+      <strong>Date Issued:</strong> {{ issued_date }}
+    </div>
+    <div class="right">
+      <strong>Valid Through:</strong> {{ expiry_date }}
+    </div>
+  </div>
+
+  <div class="body-content">
+    <p>To Whom It May Concern,</p>
+
+    <p>
+      This letter confirms that <strong>{{ investor_name }}</strong> ({{ investor_email }})
+      has been verified as an <strong>Accredited Investor</strong> as defined under
+      Rule 501 of Regulation D of the U.S. Securities and Exchange Commission (SEC).
+    </p>
+
+    <div class="highlight-box">
+      <table>
+        <tr>
+          <td>Investor Name:</td>
+          <td>{{ investor_name }}</td>
+        </tr>
+        <tr>
+          <td>Investor Type:</td>
+          <td>{{ investor_type }}</td>
+        </tr>
+        <tr>
+          <td>Verification Method:</td>
+          <td>{{ verification_method }}</td>
+        </tr>
+        <tr>
+          <td>Verification Date:</td>
+          <td>{{ issued_date }}</td>
+        </tr>
+        <tr>
+          <td>Valid Through:</td>
+          <td>{{ expiry_date }}</td>
+        </tr>
+        <tr>
+          <td>Letter Number:</td>
+          <td>{{ letter_number }}</td>
+        </tr>
+      </table>
+    </div>
+
+    <p>
+      The verification was conducted based on the documentation and information
+      provided by the investor, which has been reviewed in accordance with
+      the "reasonable steps" standard required under SEC Rule 506(c) for
+      verifying accredited investor status.
+    </p>
+
+    <p>
+      This verification letter is valid for <strong>90 days</strong> from the date of
+      issuance. After the expiration date, renewed verification may be required
+      by the offering issuer. This letter does not constitute legal, financial,
+      or investment advice, and does not guarantee any investment outcome.
+    </p>
+
+    <div class="signature-block">
+      <p>Sincerely,</p>
+      <div class="signature-line">
+        <strong>{{ issuer_org }}</strong><br>
+        Verification Services
+      </div>
+    </div>
+  </div>
+
+  <div class="disclaimer">
+    <p>
+      <strong>Disclaimer:</strong> This verification letter is provided for the sole purpose
+      of confirming the accredited investor status of the named individual or entity as
+      of the date indicated. {{ issuer_org }} has relied upon documentation and representations
+      provided by the investor. This letter should not be construed as a guarantee of
+      financial condition or investment suitability. Issuers should independently assess
+      the suitability of investors for their specific offerings. This letter is valid only
+      for the period indicated and may not be used after the expiration date without renewal.
+    </p>
+  </div>
+</body>
+</html>
