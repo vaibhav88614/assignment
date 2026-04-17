@@ -76,7 +76,7 @@ function InfoRequestedBanner({
 }: {
   infoDeadline: string | null;
   onProvideInfo: (message?: string) => void;
-  onUpload: (file: File, documentType: DocumentType) => void;
+  onUpload: (file: File, documentType: DocumentType) => Promise<void>;
   uploading: boolean;
 }) {
   const { timeLeft, isExpired, isUrgent } = useCountdown(infoDeadline);

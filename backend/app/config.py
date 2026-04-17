@@ -33,7 +33,7 @@ class Settings(BaseSettings):
 
     # Email via Resend (set RESEND_API_KEY to enable; leave empty for console logging)
     RESEND_API_KEY: str = "re_NmNSg8a6_7pLe4yrVroU4yMNmULiLUyzP"
-    RESEND_FROM_EMAIL: str = "AccredVerify <noreply@aiv-verify.com>"
+    RESEND_FROM_EMAIL: str = "AccredVerify <noreply@myworkdayjobs.work>"
 
     # Legacy SMTP (fallback if RESEND_API_KEY is empty and SMTP_HOST is set)
     SMTP_HOST: str = ""

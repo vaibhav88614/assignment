@@ -120,7 +120,7 @@ class NotificationService:
                     logger.info("Resend email sent to %s (subject: %s)", to, subject)
                 else:
                     logger.error(
-                        "Resend API error %d: %s", response.status_code, response.text
+                        "Resend API error %d to %s: %s", response.status_code, to, response.text
                     )
         except Exception as e:
             logger.error("Failed to send email via Resend: %s", e)
