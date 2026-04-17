@@ -43,7 +43,13 @@ async def register_user(db: AsyncSession, data: UserRegister) -> User:
 async def authenticate_user(db: AsyncSession, email: str, password: str) -> User | None:
     result = await db.execute(select(User).where(User.email == email))
     user = result.scalar_one_or_none()
-    if not user or not verify_password(password, user.password_hash):
+    if not user:
+        from fastapi import HTTPException, status
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No account found with this email. Please register first.",
+        )
+    if not verify_password(password, user.password_hash):
         return None
     return user
 

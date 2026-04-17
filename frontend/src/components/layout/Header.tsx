@@ -66,12 +66,9 @@ export default function Header() {
             )}
             {user && (
               <>
-                <NavLink to="/dashboard" className={navLinkClass}>
-                  Dashboard
-                </NavLink>
-                {user.role === UserRole.INVESTOR && (
-                  <NavLink to="/new-request" className={navLinkClass}>
-                    New Request
+                {user.role !== UserRole.INVESTOR && (
+                  <NavLink to="/dashboard" className={navLinkClass}>
+                    Dashboard
                   </NavLink>
                 )}
                 {(user.role === UserRole.REVIEWER ||
@@ -139,9 +136,8 @@ export default function Header() {
             )}
             {user && (
               <>
-                <Link to="/dashboard" className="block px-3 py-2 text-slate-700 hover:bg-slate-50 rounded-lg text-sm" onClick={() => setMobileOpen(false)}>Dashboard</Link>
-                {user.role === UserRole.INVESTOR && (
-                  <Link to="/new-request" className="block px-3 py-2 text-slate-700 hover:bg-slate-50 rounded-lg text-sm" onClick={() => setMobileOpen(false)}>New Request</Link>
+                {user.role !== UserRole.INVESTOR && (
+                  <Link to="/dashboard" className="block px-3 py-2 text-slate-700 hover:bg-slate-50 rounded-lg text-sm" onClick={() => setMobileOpen(false)}>Dashboard</Link>
                 )}
                 {(user.role === UserRole.REVIEWER || user.role === UserRole.ADMIN) && (
                   <Link to="/review-queue" className="block px-3 py-2 text-slate-700 hover:bg-slate-50 rounded-lg text-sm" onClick={() => setMobileOpen(false)}>Review Queue</Link>

@@ -73,9 +73,10 @@ function InfoRequestedBanner({
   onProvideInfo,
 }: {
   infoDeadline: string | null;
-  onProvideInfo: () => void;
+  onProvideInfo: (message?: string) => void;
 }) {
   const { timeLeft, isExpired, isUrgent } = useCountdown(infoDeadline);
+  const [responseMessage, setResponseMessage] = useState('');
 
   const bgClass = isExpired
     ? 'bg-red-50 border-red-300'
@@ -130,15 +131,24 @@ function InfoRequestedBanner({
           <p className={`text-sm ${subColor} mt-2`}>
             {isExpired
               ? 'The deadline to provide the requested information has passed. Your request may be automatically denied.'
-              : 'Please upload additional documents or provide more information via the message thread below, then click "Submit Additional Info".'}
+              : 'Upload additional documents in the section below and/or provide a written response, then click "Submit Additional Info".'}
           </p>
           {!isExpired && (
-            <button
-              onClick={onProvideInfo}
-              className="mt-3 bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition text-sm font-medium"
-            >
-              Submit Additional Info
-            </button>
+            <div className="mt-3 space-y-3">
+              <textarea
+                value={responseMessage}
+                onChange={(e) => setResponseMessage(e.target.value)}
+                placeholder="Type your response message here (optional)..."
+                rows={3}
+                className="w-full rounded-lg border border-orange-200 bg-white px-3 py-2 text-sm placeholder:text-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-300 focus:border-orange-300"
+              />
+              <button
+                onClick={() => onProvideInfo(responseMessage)}
+                className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition text-sm font-medium"
+              >
+                Submit Additional Info
+              </button>
+            </div>
           )}
         </div>
       </div>
@@ -234,8 +244,29 @@ export default function RequestDetailPage() {
     }
   };
 
-  const handleProvideInfo = async () => {
+  const handleDownloadDoc = async (docId: string, filename: string) => {
     try {
+      const response = await api.get(`/documents/download/${docId}`, {
+        responseType: 'blob',
+      });
+      const url = URL.createObjectURL(response.data);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      setError('Failed to download document');
+    }
+  };
+
+  const handleProvideInfo = async (responseMessage?: string) => {
+    try {
+      if (responseMessage?.trim()) {
+        await api.post(`/messages/${id}`, { content: responseMessage.trim() });
+      }
       await api.post(`/verification/requests/${id}/provide-info`);
       await fetchData();
     } catch (err: unknown) {
@@ -382,14 +413,12 @@ export default function RequestDetailPage() {
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <a
-                      href={`/api/documents/download/${doc.id}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      onClick={() => handleDownloadDoc(doc.id, doc.original_filename)}
                       className="text-indigo-600 hover:text-indigo-700"
                     >
                       <Download className="h-4 w-4" />
-                    </a>
+                    </button>
                     {canUpload && (
                       <button
                         onClick={() => handleDeleteDoc(doc.id)}

@@ -11,13 +11,16 @@ import {
   Mail,
   User as UserIcon,
   Calendar,
+  UserPlus,
 } from 'lucide-react';
 import api from '../api/client';
+import { useAuth } from '../context/AuthContext';
 import StatusBadge from '../components/common/StatusBadge';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import MessageThread from '../components/messages/MessageThread';
 import {
   RequestStatus,
+  UserRole,
   type VerificationRequestDetail,
   type Document as DocType,
   type Message,
@@ -31,6 +34,7 @@ import {
 
 export default function ReviewDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const { user } = useAuth();
   const [request, setRequest] = useState<VerificationRequestDetail | null>(null);
   const [documents, setDocuments] = useState<DocType[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -42,6 +46,9 @@ export default function ReviewDetailPage() {
   const [deadlineHours, setDeadlineHours] = useState(48);
   const [showDeny, setShowDeny] = useState(false);
   const [showRequestInfo, setShowRequestInfo] = useState(false);
+  const [showAssign, setShowAssign] = useState(false);
+  const [reviewers, setReviewers] = useState<{ id: string; first_name: string; last_name: string; email: string; active_reviews: number }[]>([]);
+  const [selectedReviewer, setSelectedReviewer] = useState('');
   const [error, setError] = useState('');
 
   const fetchData = useCallback(async () => {
@@ -120,6 +127,58 @@ export default function ReviewDetailPage() {
     }
   };
 
+  const handleDownloadDoc = async (docId: string, filename: string) => {
+    try {
+      const response = await api.get(`/documents/download/${docId}`, {
+        responseType: 'blob',
+      });
+      const url = URL.createObjectURL(response.data);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      setError('Failed to download document');
+    }
+  };
+
+  const handleShowAssign = async () => {
+    setShowAssign(true);
+    try {
+      const { data } = await api.get<typeof reviewers>('/admin/reviewers');
+      setReviewers(data);
+      if (data.length > 0) {
+        // Pre-select the reviewer with fewest active reviews
+        const sorted = [...data].sort((a, b) => a.active_reviews - b.active_reviews);
+        setSelectedReviewer(sorted[0].id);
+      }
+    } catch {
+      setError('Failed to load reviewers');
+    }
+  };
+
+  const handleAssignReviewer = async () => {
+    if (!selectedReviewer) return;
+    setActionLoading(true);
+    setError('');
+    try {
+      await api.post(`/admin/requests/${id}/assign`, { reviewer_id: selectedReviewer });
+      await fetchData();
+      setShowAssign(false);
+      setSelectedReviewer('');
+    } catch (err: unknown) {
+      setError(
+        (err as { response?: { data?: { detail?: string } } })?.response?.data
+          ?.detail || 'Failed to assign reviewer'
+      );
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   if (loading) return <LoadingSpinner label="Loading request" />;
   if (!request)
     return (
@@ -128,6 +187,8 @@ export default function ReviewDetailPage() {
         <p className="text-red-600 text-sm">{error || 'Request not found'}</p>
       </div>
     );
+
+  const isAdmin = user?.role === UserRole.ADMIN;
 
   const canReview = [
     RequestStatus.SUBMITTED,
@@ -194,45 +255,58 @@ export default function ReviewDetailPage() {
             {canReview && (
               <div className="flex flex-wrap gap-2.5 pt-5 border-t border-slate-100">
                 {needsClaim ? (
-                  <button
-                    onClick={() =>
-                      handleTransition(RequestStatus.UNDER_REVIEW)
-                    }
-                    disabled={actionLoading}
-                    className="inline-flex items-center gap-2 bg-gradient-to-b from-amber-500 to-amber-600 text-white px-4 py-2 rounded-lg hover:brightness-105 disabled:opacity-50 transition text-sm font-medium shadow-sm"
-                  >
-                    <PlayCircle className="h-4 w-4" />
-                    Claim & Start Review
-                  </button>
-                ) : (
-                  <>
+                  isAdmin ? (
+                    <button
+                      onClick={handleShowAssign}
+                      disabled={actionLoading}
+                      className="inline-flex items-center gap-2 bg-gradient-to-b from-amber-500 to-amber-600 text-white px-4 py-2 rounded-lg hover:brightness-105 disabled:opacity-50 transition text-sm font-medium shadow-sm"
+                    >
+                      <UserPlus className="h-4 w-4" />
+                      Assign to Reviewer
+                    </button>
+                  ) : (
                     <button
                       onClick={() =>
-                        handleTransition(RequestStatus.APPROVED)
+                        handleTransition(RequestStatus.UNDER_REVIEW)
                       }
                       disabled={actionLoading}
-                      className="inline-flex items-center gap-2 bg-gradient-to-b from-emerald-500 to-emerald-600 text-white px-4 py-2 rounded-lg hover:brightness-105 disabled:opacity-50 transition text-sm font-medium shadow-sm"
+                      className="inline-flex items-center gap-2 bg-gradient-to-b from-amber-500 to-amber-600 text-white px-4 py-2 rounded-lg hover:brightness-105 disabled:opacity-50 transition text-sm font-medium shadow-sm"
                     >
-                      <CheckCircle2 className="h-4 w-4" />
-                      Approve
+                      <PlayCircle className="h-4 w-4" />
+                      Claim & Start Review
                     </button>
-                    <button
-                      onClick={() => setShowDeny((v) => !v)}
-                      disabled={actionLoading}
-                      className="inline-flex items-center gap-2 bg-gradient-to-b from-red-500 to-red-600 text-white px-4 py-2 rounded-lg hover:brightness-105 disabled:opacity-50 transition text-sm font-medium shadow-sm"
-                    >
-                      <XCircle className="h-4 w-4" />
-                      Deny
-                    </button>
-                    <button
-                      onClick={() => setShowRequestInfo((v) => !v)}
-                      disabled={actionLoading}
-                      className="inline-flex items-center gap-2 bg-gradient-to-b from-orange-500 to-orange-600 text-white px-4 py-2 rounded-lg hover:brightness-105 disabled:opacity-50 transition text-sm font-medium shadow-sm"
-                    >
-                      <AlertCircle className="h-4 w-4" />
+                  )
+                ) : (
+                  !isAdmin && (
+                    <>
+                      <button
+                        onClick={() =>
+                          handleTransition(RequestStatus.APPROVED)
+                        }
+                        disabled={actionLoading}
+                        className="inline-flex items-center gap-2 bg-gradient-to-b from-emerald-500 to-emerald-600 text-white px-4 py-2 rounded-lg hover:brightness-105 disabled:opacity-50 transition text-sm font-medium shadow-sm"
+                      >
+                        <CheckCircle2 className="h-4 w-4" />
+                        Approve
+                      </button>
+                      <button
+                        onClick={() => setShowDeny((v) => !v)}
+                        disabled={actionLoading}
+                        className="inline-flex items-center gap-2 bg-gradient-to-b from-red-500 to-red-600 text-white px-4 py-2 rounded-lg hover:brightness-105 disabled:opacity-50 transition text-sm font-medium shadow-sm"
+                      >
+                        <XCircle className="h-4 w-4" />
+                        Deny
+                      </button>
+                      <button
+                        onClick={() => setShowRequestInfo((v) => !v)}
+                        disabled={actionLoading}
+                        className="inline-flex items-center gap-2 bg-gradient-to-b from-orange-500 to-orange-600 text-white px-4 py-2 rounded-lg hover:brightness-105 disabled:opacity-50 transition text-sm font-medium shadow-sm"
+                      >
+                        <AlertCircle className="h-4 w-4" />
                       Request More Info
                     </button>
                   </>
+                  )
                 )}
               </div>
             )}
@@ -353,6 +427,74 @@ export default function ReviewDetailPage() {
                 </div>
               </div>
             )}
+
+            {/* Assign Reviewer Dialog (Admin only) */}
+            {showAssign && (
+              <div className="mt-5 bg-indigo-50 border border-indigo-200 rounded-xl p-4 animate-fade-in">
+                <p className="text-sm font-semibold text-indigo-800 mb-3">
+                  Assign a Reviewer
+                </p>
+                {reviewers.length === 0 ? (
+                  <p className="text-sm text-indigo-600">Loading reviewers...</p>
+                ) : (
+                  <>
+                    <div className="space-y-2 mb-3">
+                      {reviewers
+                        .sort((a, b) => a.active_reviews - b.active_reviews)
+                        .map((rev) => (
+                          <label
+                            key={rev.id}
+                            className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition ${
+                              selectedReviewer === rev.id
+                                ? 'bg-white border-indigo-400 ring-2 ring-indigo-200'
+                                : 'bg-white border-slate-200 hover:border-slate-300'
+                            }`}
+                          >
+                            <input
+                              type="radio"
+                              name="reviewer"
+                              value={rev.id}
+                              checked={selectedReviewer === rev.id}
+                              onChange={() => setSelectedReviewer(rev.id)}
+                              className="accent-indigo-600"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-slate-900">
+                                {rev.first_name} {rev.last_name}
+                              </p>
+                              <p className="text-xs text-slate-500">{rev.email}</p>
+                            </div>
+                            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                              rev.active_reviews === 0
+                                ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200'
+                                : rev.active_reviews <= 3
+                                ? 'bg-amber-50 text-amber-700 ring-1 ring-amber-200'
+                                : 'bg-red-50 text-red-700 ring-1 ring-red-200'
+                            }`}>
+                              {rev.active_reviews} active
+                            </span>
+                          </label>
+                        ))}
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={handleAssignReviewer}
+                        disabled={!selectedReviewer || actionLoading}
+                        className="bg-gradient-to-b from-indigo-500 to-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:brightness-105 disabled:opacity-50 shadow-sm"
+                      >
+                        Assign Reviewer
+                      </button>
+                      <button
+                        onClick={() => setShowAssign(false)}
+                        className="border border-slate-200 bg-white text-slate-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-50"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Attestation */}
@@ -412,15 +554,13 @@ export default function ReviewDetailPage() {
                         {formatDate(doc.uploaded_at)}
                       </p>
                     </div>
-                    <a
-                      href={`/api/documents/download/${doc.id}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      onClick={() => handleDownloadDoc(doc.id, doc.original_filename)}
                       className="text-indigo-600 hover:text-indigo-700 p-1.5 rounded-lg hover:bg-indigo-50 transition"
                       title="Download"
                     >
                       <Download className="h-4 w-4" />
-                    </a>
+                    </button>
                   </div>
                 ))}
               </div>
@@ -428,24 +568,26 @@ export default function ReviewDetailPage() {
           </div>
         </div>
 
-        {/* Right: Messages */}
-        <div className="lg:col-span-1">
-          <div className="card sticky top-20 overflow-hidden">
-            <div className="px-4 py-3.5 border-b border-slate-100 bg-slate-50/40">
-              <h2 className="font-semibold text-slate-900 text-sm">
-                Communication Thread
-              </h2>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Messages and status updates between investor and reviewer
-              </p>
+        {/* Right: Messages (only after claiming) */}
+        {request.status !== RequestStatus.SUBMITTED && (
+          <div className="lg:col-span-1">
+            <div className="card sticky top-20 overflow-hidden">
+              <div className="px-4 py-3.5 border-b border-slate-100 bg-slate-50/40">
+                <h2 className="font-semibold text-slate-900 text-sm">
+                  Communication Thread
+                </h2>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Messages and status updates between investor and reviewer
+                </p>
+              </div>
+              <MessageThread
+                messages={messages}
+                onSend={handleSendMessage}
+                sending={sending}
+              />
             </div>
-            <MessageThread
-              messages={messages}
-              onSend={handleSendMessage}
-              sending={sending}
-            />
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

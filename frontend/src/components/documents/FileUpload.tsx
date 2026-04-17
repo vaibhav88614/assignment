@@ -1,4 +1,4 @@
-import { useCallback, useState, type DragEvent } from 'react';
+import { useCallback, useRef, useState, type DragEvent } from 'react';
 import { Upload, X, FileText, UploadCloud } from 'lucide-react';
 import { DocumentType } from '../../types';
 import { DOCUMENT_TYPE_LABELS, formatFileSize } from '../../utils/constants';
@@ -12,6 +12,7 @@ export default function FileUpload({ onUpload, uploading }: FileUploadProps) {
   const [dragActive, setDragActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [docType, setDocType] = useState<DocumentType>(DocumentType.OTHER);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleDrag = useCallback((e: DragEvent) => {
     e.preventDefault();
@@ -47,7 +48,7 @@ export default function FileUpload({ onUpload, uploading }: FileUploadProps) {
   return (
     <div className="space-y-3">
       <div
-        className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${
+        className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors cursor-pointer ${
           dragActive
             ? 'border-indigo-400 bg-indigo-50/60'
             : 'border-slate-200 hover:border-slate-300 bg-slate-50/40'
@@ -56,21 +57,23 @@ export default function FileUpload({ onUpload, uploading }: FileUploadProps) {
         onDragLeave={handleDrag}
         onDragOver={handleDrag}
         onDrop={handleDrop}
+        onClick={() => inputRef.current?.click()}
       >
+        <input
+          ref={inputRef}
+          type="file"
+          className="hidden"
+          accept=".pdf,.jpg,.jpeg,.png"
+          onChange={handleChange}
+        />
         <div className="mx-auto mb-3 h-10 w-10 rounded-xl bg-white border border-slate-200 shadow-sm flex items-center justify-center">
           <UploadCloud className="h-5 w-5 text-slate-500" />
         </div>
         <p className="text-sm text-slate-700">
           Drag and drop a file here, or{' '}
-          <label className="text-indigo-600 hover:text-indigo-700 cursor-pointer font-medium underline-offset-2 hover:underline">
+          <span className="text-indigo-600 hover:text-indigo-700 font-medium underline-offset-2 hover:underline">
             browse
-            <input
-              type="file"
-              className="hidden"
-              accept=".pdf,.jpg,.jpeg,.png"
-              onChange={handleChange}
-            />
-          </label>
+          </span>
         </p>
         <p className="text-xs text-slate-400 mt-1">PDF, JPG, PNG up to 10MB</p>
       </div>

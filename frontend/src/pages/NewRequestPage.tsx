@@ -81,6 +81,7 @@ export default function NewRequestPage() {
   const [error, setError] = useState('');
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [selfAttestChecks, setSelfAttestChecks] = useState<boolean[]>([]);
 
   const setField = (key: string, value: string) =>
     setAttestation((prev) => ({ ...prev, [key]: value }));
@@ -135,6 +136,44 @@ export default function NewRequestPage() {
           { key: 'entity_name', label: 'Institution Name', type: 'text' },
           { key: 'institution_type', label: 'Institution Type', type: 'select', options: ['Bank', 'Insurance Company', 'Registered Investment Company', 'Business Development Company', 'Registered Investment Adviser', 'Other'] },
           { key: 'registration_number', label: 'Registration Number', type: 'text' },
+        ];
+      default:
+        return [];
+    }
+  };
+
+  const getAttestationChecks = (): string[] => {
+    if (!method) return [];
+    switch (method) {
+      case VerificationMethod.INCOME:
+        return [
+          'I confirm that my individual annual income has exceeded $200,000 (or $300,000 jointly with my spouse) in each of the past two most recent years.',
+          'I have a reasonable expectation of reaching the same income level in the current year.',
+        ];
+      case VerificationMethod.NET_WORTH:
+        return [
+          'I confirm that my individual (or joint with spouse) net worth exceeds $1,000,000, excluding the value of my primary residence.',
+        ];
+      case VerificationMethod.PROFESSIONAL_CREDENTIAL:
+        return [
+          'I confirm that I hold a valid, active Series 7, Series 65, or Series 82 license in good standing.',
+        ];
+      case VerificationMethod.PROFESSIONAL_ROLE:
+        return [
+          'I confirm that I am a knowledgeable employee, executive officer, or director of the company offering securities.',
+        ];
+      case VerificationMethod.ENTITY_ASSETS:
+        return [
+          'I confirm that this entity has total assets in excess of $5,000,000.',
+          'I confirm that this entity was not formed for the specific purpose of acquiring the securities being offered.',
+        ];
+      case VerificationMethod.ENTITY_ALL_OWNERS_ACCREDITED:
+        return [
+          'I confirm that every equity owner of this entity individually qualifies as an accredited investor.',
+        ];
+      case VerificationMethod.ENTITY_INSTITUTIONAL:
+        return [
+          'I confirm that this entity is a bank, insurance company, registered investment company, business development company, or similar qualified institutional buyer.',
         ];
       default:
         return [];
@@ -216,7 +255,11 @@ export default function NewRequestPage() {
       case 1:
         return method !== null;
       case 2:
-        return getAttestationFields().every((f) => attestation[f.key]?.trim());
+        return (
+          getAttestationFields().every((f) => attestation[f.key]?.trim()) &&
+          selfAttestChecks.length > 0 &&
+          selfAttestChecks.every(Boolean)
+        );
       case 3:
         return uploadedDocs.length > 0;
       case 4:
@@ -354,6 +397,7 @@ export default function NewRequestPage() {
                   onClick={() => {
                     setInvestorType(type);
                     setMethod(null);
+                    setSelfAttestChecks([]);
                   }}
                   className={`relative p-5 rounded-xl border text-left transition-all bg-white ${
                     selected
@@ -403,7 +447,10 @@ export default function NewRequestPage() {
               return (
                 <button
                   key={m}
-                  onClick={() => setMethod(m)}
+                  onClick={() => {
+                    setMethod(m);
+                    setSelfAttestChecks([]);
+                  }}
                   className={`relative w-full p-4 rounded-xl border text-left transition-all bg-white flex gap-4 items-start ${
                     selected
                       ? 'border-indigo-400 ring-2 ring-indigo-200 shadow-sm'
@@ -500,6 +547,43 @@ export default function NewRequestPage() {
               </div>
             ))}
           </div>
+
+          {/* Self-attestation confirmation checks */}
+          {getAttestationChecks().length > 0 && (
+            <div className="card p-6 space-y-3">
+              <h3 className="text-sm font-semibold text-slate-900">
+                Self-Attestation Confirmation
+              </h3>
+              <p className="text-xs text-slate-500">
+                You must confirm the following before continuing:
+              </p>
+              {getAttestationChecks().map((check, idx) => (
+                <label
+                  key={idx}
+                  className={`flex items-start gap-3 rounded-lg p-3 cursor-pointer border transition ${
+                    selfAttestChecks[idx]
+                      ? 'bg-emerald-50 border-emerald-300'
+                      : 'bg-white border-slate-200 hover:bg-slate-50'
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={selfAttestChecks[idx] || false}
+                    onChange={(e) => {
+                      const next = [...selfAttestChecks];
+                      while (next.length < getAttestationChecks().length) next.push(false);
+                      next[idx] = e.target.checked;
+                      setSelfAttestChecks(next);
+                    }}
+                    className="mt-0.5 h-4 w-4 accent-emerald-600 rounded border-slate-300"
+                  />
+                  <span className="text-sm text-slate-700 leading-relaxed">
+                    {check}
+                  </span>
+                </label>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

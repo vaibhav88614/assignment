@@ -23,6 +23,21 @@ from app.schemas.verification import (
 async def create_request(
     db: AsyncSession, user: User, data: VerificationRequestCreate
 ) -> VerificationRequest:
+    # Reuse existing DRAFT to prevent duplicate requests on page refresh
+    result = await db.execute(
+        select(VerificationRequest).where(
+            VerificationRequest.investor_id == user.id,
+            VerificationRequest.status == RequestStatus.DRAFT,
+        )
+    )
+    existing = result.scalar_one_or_none()
+    if existing:
+        existing.investor_type = data.investor_type
+        existing.verification_method = data.verification_method
+        existing.self_attestation_data = data.self_attestation_data
+        await db.flush()
+        return existing
+
     req = VerificationRequest(
         investor_id=user.id,
         investor_type=data.investor_type,
@@ -142,9 +157,25 @@ async def transition_request(
 
     # Role-based guards
     if new_status == RequestStatus.UNDER_REVIEW:
-        if user.role not in (UserRole.REVIEWER, UserRole.ADMIN):
+        if user.role == UserRole.ADMIN:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admins cannot self-review. Use the assign feature to assign a reviewer.")
+        if user.role == UserRole.INVESTOR:
+            # Investors can only move to UNDER_REVIEW from INFO_REQUESTED (provide-info flow)
+            if req.status != RequestStatus.INFO_REQUESTED:
+                raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not allowed")
+            # Enforce info deadline
+            if req.info_deadline:
+                deadline = req.info_deadline
+                if deadline.tzinfo is None:
+                    deadline = deadline.replace(tzinfo=timezone.utc)
+                if datetime.now(timezone.utc) > deadline:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail="The deadline to provide additional information has passed. This request will be denied.",
+                    )
+        elif user.role != UserRole.REVIEWER:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only reviewers can claim requests")
-        if req.assigned_reviewer_id is None:
+        if req.assigned_reviewer_id is None and user.role == UserRole.REVIEWER:
             req.assigned_reviewer_id = user.id
     elif new_status in (RequestStatus.APPROVED, RequestStatus.DENIED, RequestStatus.INFO_REQUESTED):
         if user.role not in (UserRole.REVIEWER, UserRole.ADMIN):
@@ -155,11 +186,15 @@ async def transition_request(
         if user.role != UserRole.INVESTOR or req.investor_id != user.id:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only the requesting investor can provide info")
         # Enforce info deadline — if expired, reject
-        if req.info_deadline and datetime.now(timezone.utc) > req.info_deadline:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="The deadline to provide additional information has passed. This request will be denied.",
-            )
+        if req.info_deadline:
+            deadline = req.info_deadline
+            if deadline.tzinfo is None:
+                deadline = deadline.replace(tzinfo=timezone.utc)
+            if datetime.now(timezone.utc) > deadline:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="The deadline to provide additional information has passed. This request will be denied.",
+                )
 
     req.status = new_status
 
@@ -179,6 +214,9 @@ async def transition_request(
 
     if new_status == RequestStatus.ADDITIONAL_INFO_PROVIDED:
         req.info_deadline = None  # Clear deadline once info is provided
+
+    if new_status == RequestStatus.UNDER_REVIEW and req.info_deadline:
+        req.info_deadline = None  # Clear deadline when returning to review
 
     # Auto-create system message for state transitions
     deadline_note = ""

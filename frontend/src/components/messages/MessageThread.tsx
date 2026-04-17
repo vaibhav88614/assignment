@@ -25,11 +25,13 @@ export default function MessageThread({
   sending,
 }: MessageThreadProps) {
   const [content, setContent] = useState('');
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (containerRef.current) {
+      containerRef.current.scrollTop = containerRef.current.scrollHeight;
+    }
   }, [messages]);
 
   const [sendError, setSendError] = useState<string | null>(null);
@@ -48,7 +50,7 @@ export default function MessageThread({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto space-y-3 p-4 max-h-[28rem]">
+      <div ref={containerRef} className="flex-1 overflow-y-auto space-y-3 p-4 max-h-[28rem]">
         {messages.length === 0 && (
           <p className="text-sm text-slate-400 text-center py-10">
             No messages yet. Start the conversation.
@@ -101,7 +103,6 @@ export default function MessageThread({
             </div>
           );
         })}
-        <div ref={bottomRef} />
       </div>
 
       {sendError && (

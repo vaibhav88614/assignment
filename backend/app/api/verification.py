@@ -103,7 +103,7 @@ async def provide_additional_info(
     return await transition_request(
         db,
         request_id,
-        RequestStatus.ADDITIONAL_INFO_PROVIDED,
+        RequestStatus.UNDER_REVIEW,
         current_user,
     )
 

@@ -14,6 +14,92 @@ from app.schemas.user import AdminUserUpdate, UserResponse
 router = APIRouter(prefix="/api/admin", tags=["Admin"])
 
 
+@router.get("/reviewers")
+async def list_reviewers_with_workload(
+    _admin: User = Depends(require_role(UserRole.ADMIN)),
+    db: AsyncSession = Depends(get_db),
+):
+    """List all reviewers with their active review count for assignment UI."""
+    result = await db.execute(
+        select(User).where(User.role == UserRole.REVIEWER, User.is_active == True)
+        .order_by(User.first_name.asc())
+    )
+    reviewers = list(result.scalars().all())
+
+    active_statuses = [
+        RequestStatus.UNDER_REVIEW,
+        RequestStatus.INFO_REQUESTED,
+        RequestStatus.ADDITIONAL_INFO_PROVIDED,
+    ]
+
+    reviewer_data = []
+    for rev in reviewers:
+        count_result = await db.execute(
+            select(func.count()).where(
+                VerificationRequest.assigned_reviewer_id == rev.id,
+                VerificationRequest.status.in_(active_statuses),
+            )
+        )
+        active_count = count_result.scalar() or 0
+        reviewer_data.append({
+            "id": rev.id,
+            "first_name": rev.first_name,
+            "last_name": rev.last_name,
+            "email": rev.email,
+            "active_reviews": active_count,
+        })
+
+    return reviewer_data
+
+
+@router.post("/requests/{request_id}/assign")
+async def assign_reviewer(
+    request_id: str,
+    data: dict,
+    _admin: User = Depends(require_role(UserRole.ADMIN)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Admin assigns a reviewer to a request and transitions to UNDER_REVIEW."""
+    from fastapi import HTTPException, status
+
+    reviewer_id = data.get("reviewer_id")
+    if not reviewer_id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="reviewer_id is required")
+
+    # Verify reviewer exists and is active
+    rev_result = await db.execute(select(User).where(User.id == reviewer_id))
+    reviewer = rev_result.scalar_one_or_none()
+    if not reviewer or reviewer.role != UserRole.REVIEWER or not reviewer.is_active:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid reviewer")
+
+    # Get request
+    req_result = await db.execute(select(VerificationRequest).where(VerificationRequest.id == request_id))
+    req = req_result.scalar_one_or_none()
+    if not req:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Request not found")
+
+    if req.status not in (RequestStatus.SUBMITTED, RequestStatus.ADDITIONAL_INFO_PROVIDED):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Cannot assign reviewer when status is {req.status.value}",
+        )
+
+    req.assigned_reviewer_id = reviewer_id
+    req.status = RequestStatus.UNDER_REVIEW
+
+    from app.models.message import Message
+    sys_msg = Message(
+        request_id=request_id,
+        sender_id=_admin.id,
+        content=f"Request assigned to reviewer {reviewer.first_name} {reviewer.last_name} by admin. Status changed to UNDER_REVIEW.",
+        is_system_message=True,
+    )
+    db.add(sys_msg)
+    await db.flush()
+
+    return {"detail": "Reviewer assigned", "request_id": request_id, "reviewer_id": reviewer_id}
+
+
 @router.get("/users", response_model=list[UserResponse])
 async def list_users(
     role: UserRole | None = None,
