@@ -1,50 +1,202 @@
-2026-04-17T17:47:41.044022081Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2362, in execute
-2026-04-17T17:47:41.044024101Z     return self._execute_internal(
-2026-04-17T17:47:41.044026042Z            ^^^^^^^^^^^^^^^^^^^^^^^
-2026-04-17T17:47:41.044027982Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2247, in _execute_internal
-2026-04-17T17:47:41.044030032Z     result: Result[Any] = compile_state_cls.orm_execute_statement(
-2026-04-17T17:47:41.044032002Z                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2026-04-17T17:47:41.044041022Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/orm/context.py", line 305, in orm_execute_statement
-2026-04-17T17:47:41.044044583Z     result = conn.execute(
-2026-04-17T17:47:41.044047773Z              ^^^^^^^^^^^^^
-2026-04-17T17:47:41.044050863Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1418, in execute
-2026-04-17T17:47:41.044054033Z     return meth(
-2026-04-17T17:47:41.044057423Z            ^^^^^
-2026-04-17T17:47:41.044060233Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 515, in _execute_on_connection
-2026-04-17T17:47:41.044062224Z     return connection._execute_clauseelement(
-2026-04-17T17:47:41.044064174Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2026-04-17T17:47:41.044066134Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1640, in _execute_clauseelement
-2026-04-17T17:47:41.044068184Z     ret = self._execute_context(
-2026-04-17T17:47:41.044070134Z           ^^^^^^^^^^^^^^^^^^^^^^
-2026-04-17T17:47:41.044072114Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1846, in _execute_context
-2026-04-17T17:47:41.044074074Z     return self._exec_single_context(
-2026-04-17T17:47:41.044076044Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^
-2026-04-17T17:47:41.044078034Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1986, in _exec_single_context
-2026-04-17T17:47:41.044080025Z     self._handle_dbapi_exception(
-2026-04-17T17:47:41.044082005Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2355, in _handle_dbapi_exception
-2026-04-17T17:47:41.044084045Z     raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
-2026-04-17T17:47:41.044086005Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
-2026-04-17T17:47:41.044087985Z     self.dialect.do_execute(
-2026-04-17T17:47:41.044093346Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 941, in do_execute
-2026-04-17T17:47:41.044095355Z     cursor.execute(statement, parameters)
-2026-04-17T17:47:41.044097286Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 568, in execute
-2026-04-17T17:47:41.044099226Z     self._adapt_connection.await_(
-2026-04-17T17:47:41.044101186Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 132, in await_only
-2026-04-17T17:47:41.044103256Z     return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
-2026-04-17T17:47:41.044105196Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2026-04-17T17:47:41.044107136Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 196, in greenlet_spawn
-2026-04-17T17:47:41.044109096Z     value = await result
-2026-04-17T17:47:41.044111056Z             ^^^^^^^^^^^^
-2026-04-17T17:47:41.044113156Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 546, in _prepare_and_execute
-2026-04-17T17:47:41.044115107Z     self._handle_exception(error)
-2026-04-17T17:47:41.044117107Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 497, in _handle_exception
-2026-04-17T17:47:41.044119157Z     self._adapt_connection._handle_exception(error)
-2026-04-17T17:47:41.044121137Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 780, in _handle_exception
-2026-04-17T17:47:41.044123097Z     raise translated_error from error
-2026-04-17T17:47:41.044125787Z sqlalchemy.exc.ProgrammingError: (sqlalchemy.dialects.postgresql.asyncpg.ProgrammingError) <class 'asyncpg.exceptions.UndefinedColumnError'>: column verification_requests.last_message_at does not exist
-2026-04-17T17:47:41.044127757Z [SQL: SELECT count(*) AS count_1 
-2026-04-17T17:47:41.044131148Z FROM (SELECT verification_requests.id AS id, verification_requests.investor_id AS investor_id, verification_requests.assigned_reviewer_id AS assigned_reviewer_id, verification_requests.investor_type AS investor_type, verification_requests.verification_method AS verification_method, verification_requests.status AS status, verification_requests.self_attestation_data AS self_attestation_data, verification_requests.denial_reason AS denial_reason, verification_requests.info_deadline AS info_deadline, verification_requests.submitted_at AS submitted_at, verification_requests.reviewed_at AS reviewed_at, verification_requests.expires_at AS expires_at, verification_requests.last_message_at AS last_message_at, verification_requests.created_at AS created_at, verification_requests.updated_at AS updated_at 
-2026-04-17T17:47:41.044133508Z FROM verification_requests 
-2026-04-17T17:47:41.044135558Z WHERE verification_requests.status IN ($1::requeststatus, $2::requeststatus, $3::requeststatus, $4::requeststatus, $5::requeststatus, $6::requeststatus, $7::requeststatus)) AS anon_1]
-2026-04-17T17:47:41.044147749Z [parameters: ('SUBMITTED', 'UNDER_REVIEW', 'ADDITIONAL_INFO_PROVIDED', 'INFO_REQUESTED', 'APPROVED', 'DENIED', 'EXPIRED')]
-2026-04-17T17:47:41.044151169Z (Background on this error at: https://sqlalche.me/e/20/f405)
+2026-04-17T18:44:13.522856301Z Using cached SQLAlchemy-2.0.36-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.2 MB)
+2026-04-17T18:44:13.529118232Z Using cached starlette-0.41.3-py3-none-any.whl (73 kB)
+2026-04-17T18:44:13.530759836Z Using cached anyio-4.13.0-py3-none-any.whl (114 kB)
+2026-04-17T18:44:13.532605845Z Using cached svglib-1.6.0-py3-none-any.whl (39 kB)
+2026-04-17T18:44:13.534242159Z Using cached typing_extensions-4.15.0-py3-none-any.whl (44 kB)
+2026-04-17T18:44:13.536011706Z Using cached urllib3-2.6.3-py3-none-any.whl (131 kB)
+2026-04-17T18:44:13.542306308Z Using cached uvloop-0.22.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (3.8 MB)
+2026-04-17T18:44:13.550956278Z Using cached watchfiles-1.1.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (456 kB)
+2026-04-17T18:44:13.553189915Z Using cached websockets-16.0-cp311-cp311-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (184 kB)
+2026-04-17T18:44:13.555027124Z Using cached iniconfig-2.3.0-py3-none-any.whl (7.5 kB)
+2026-04-17T18:44:13.556569376Z Using cached mako-1.3.11-py3-none-any.whl (78 kB)
+2026-04-17T18:44:13.558269542Z Using cached packaging-26.1-py3-none-any.whl (95 kB)
+2026-04-17T18:44:13.56011415Z Using cached passlib-1.7.4-py2.py3-none-any.whl (525 kB)
+2026-04-17T18:44:13.562401568Z Using cached pyasn1-0.6.3-py3-none-any.whl (83 kB)
+2026-04-17T18:44:13.564129384Z Using cached python_jose-3.3.0-py2.py3-none-any.whl (33 kB)
+2026-04-17T18:44:13.565735728Z Using cached rsa-4.9.1-py3-none-any.whl (34 kB)
+2026-04-17T18:44:13.567323781Z Using cached uvicorn-0.34.0-py3-none-any.whl (62 kB)
+2026-04-17T18:44:13.569035917Z Using cached asn1crypto-1.5.1-py2.py3-none-any.whl (105 kB)
+2026-04-17T18:44:13.570751383Z Using cached cffi-2.0.0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (215 kB)
+2026-04-17T18:44:13.572734134Z Using cached charset_normalizer-3.4.7-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (214 kB)
+2026-04-17T18:44:13.574566623Z Using cached cssselect2-0.9.0-py3-none-any.whl (15 kB)
+2026-04-17T18:44:13.59019001Z Using cached lxml-6.0.4-cp311-cp311-manylinux_2_26_x86_64.manylinux_2_28_x86_64.whl (5.2 MB)
+2026-04-17T18:44:13.601301632Z Using cached oscrypto-1.3.0-py2.py3-none-any.whl (194 kB)
+2026-04-17T18:44:13.6031183Z Using cached rlpycairo-0.4.0-py3-none-any.whl (7.6 kB)
+2026-04-17T18:44:13.604816005Z Using cached tinycss2-1.5.1-py3-none-any.whl (28 kB)
+2026-04-17T18:44:13.606393518Z Using cached tzlocal-5.3.1-py3-none-any.whl (18 kB)
+2026-04-17T18:44:13.607995132Z Using cached uritools-6.0.1-py3-none-any.whl (10 kB)
+2026-04-17T18:44:13.609538264Z Using cached webencodings-0.5.1-py2.py3-none-any.whl (11 kB)
+2026-04-17T18:44:13.612441085Z Using cached freetype_py-2.5.1-py3-none-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_12_x86_64.manylinux2010_x86_64.whl (1.0 MB)
+2026-04-17T18:44:13.615448028Z Using cached pycparser-3.0-py3-none-any.whl (48 kB)
+2026-04-17T18:44:14.037471549Z Installing collected packages: webencodings, python-bidi, passlib, asn1crypto, arabic-reshaper, websockets, uvloop, urllib3, uritools, tzlocal, typing-extensions, tinycss2, six, pyyaml, python-multipart, python-dotenv, pypdf, pycparser, pycairo, pyasn1, psycopg2-binary, pluggy, Pillow, packaging, oscrypto, MarkupSafe, lxml, iniconfig, idna, httptools, h11, greenlet, freetype-py, dnspython, click, charset-normalizer, certifi, bcrypt, asyncpg, annotated-types, aiofiles, uvicorn, sqlalchemy, rsa, rlpycairo, requests, reportlab, pytest, pydantic-core, Mako, jinja2, httpcore, html5lib, email-validator, ecdsa, cssselect2, cloudinary, cffi, anyio, aiosqlite, watchfiles, svglib, starlette, resend, python-jose, pytest-asyncio, pydantic, httpx, cryptography, alembic, pyhanko-certvalidator, pydantic-settings, fastapi, pyHanko, xhtml2pdf
+2026-04-17T18:44:21.061352491Z Successfully installed Mako-1.3.11 MarkupSafe-3.0.3 Pillow-12.2.0 aiofiles-24.1.0 aiosqlite-0.20.0 alembic-1.14.1 annotated-types-0.7.0 anyio-4.13.0 arabic-reshaper-3.0.0 asn1crypto-1.5.1 asyncpg-0.30.0 bcrypt-4.3.0 certifi-2026.2.25 cffi-2.0.0 charset-normalizer-3.4.7 click-8.3.2 cloudinary-1.41.0 cryptography-46.0.7 cssselect2-0.9.0 dnspython-2.8.0 ecdsa-0.19.2 email-validator-2.2.0 fastapi-0.115.6 freetype-py-2.5.1 greenlet-3.4.0 h11-0.16.0 html5lib-1.1 httpcore-1.0.9 httptools-0.7.1 httpx-0.28.1 idna-3.11 iniconfig-2.3.0 jinja2-3.1.5 lxml-6.0.4 oscrypto-1.3.0 packaging-26.1 passlib-1.7.4 pluggy-1.6.0 psycopg2-binary-2.9.10 pyHanko-0.34.1 pyasn1-0.6.3 pycairo-1.29.0 pycparser-3.0 pydantic-2.10.4 pydantic-core-2.27.2 pydantic-settings-2.7.1 pyhanko-certvalidator-0.30.2 pypdf-6.10.2 pytest-8.3.4 pytest-asyncio-0.25.0 python-bidi-0.6.7 python-dotenv-1.2.2 python-jose-3.3.0 python-multipart-0.0.20 pyyaml-6.0.3 reportlab-4.4.10 requests-2.33.1 resend-2.5.1 rlpycairo-0.4.0 rsa-4.9.1 six-1.17.0 sqlalchemy-2.0.36 starlette-0.41.3 svglib-1.6.0 tinycss2-1.5.1 typing-extensions-4.15.0 tzlocal-5.3.1 uritools-6.0.1 urllib3-2.6.3 uvicorn-0.34.0 uvloop-0.22.1 watchfiles-1.1.1 webencodings-0.5.1 websockets-16.0 xhtml2pdf-0.2.16
+2026-04-17T18:44:21.097744443Z 
+2026-04-17T18:44:21.097767493Z [notice] A new release of pip is available: 23.2.1 -> 26.0.1
+2026-04-17T18:44:21.097771773Z [notice] To update, run: pip install --upgrade pip
+2026-04-17T18:44:23.400099029Z Seed data already exists — skipping. (Database has 6 users)
+2026-04-17T18:44:27.142074569Z ==> Uploading build...
+2026-04-17T18:44:34.189472134Z ==> Uploaded in 4.2s. Compression took 2.8s
+2026-04-17T18:44:34.261719186Z ==> Build successful 🎉
+2026-04-17T18:44:36.791175Z ==> Deploying...
+2026-04-17T18:44:36.854855697Z ==> Setting WEB_CONCURRENCY=1 by default, based on available CPUs in the instance
+2026-04-17T18:45:03.473636525Z ==> Running 'uvicorn app.main:app --host 0.0.0.0 --port $PORT'
+2026-04-17T18:45:23.992601752Z INFO:     Started server process [59]
+2026-04-17T18:45:23.992635783Z INFO:     Waiting for application startup.
+2026-04-17T18:45:24.07767211Z INFO:aiv:Starting Accredited Investor Verification v1.0.0
+2026-04-17T18:45:24.275530033Z INFO:aiv:Database initialized
+2026-04-17T18:45:24.275561554Z INFO:aiv:Deadline checker background task started
+2026-04-17T18:45:24.277166188Z INFO:     Application startup complete.
+2026-04-17T18:45:24.277424845Z INFO:     Uvicorn running on http://0.0.0.0:10000 (Press CTRL+C to quit)
+2026-04-17T18:45:24.719053908Z INFO:     127.0.0.1:39064 - "HEAD / HTTP/1.1" 404 Not Found
+2026-04-17T18:45:28.261154847Z ==> Your service is live 🎉
+2026-04-17T18:45:28.343283553Z ==> 
+2026-04-17T18:45:28.346404212Z ==> ///////////////////////////////////////////////////////////
+2026-04-17T18:45:28.349418749Z ==> 
+2026-04-17T18:45:28.353049588Z ==> Available at your primary URL https://accredverify-api.onrender.com
+2026-04-17T18:45:28.355600607Z ==> 
+2026-04-17T18:45:28.358282498Z ==> ///////////////////////////////////////////////////////////
+2026-04-17T18:45:28.443597189Z INFO:     34.83.18.152:0 - "GET / HTTP/1.1" 404 Not Found
+2026-04-17T18:45:36.918087322Z INFO:     106.192.234.66:0 - "OPTIONS /api/auth/me HTTP/1.1" 200 OK
+2026-04-17T18:45:37.610860216Z INFO:     106.192.234.66:0 - "GET /api/auth/me HTTP/1.1" 200 OK
+2026-04-17T18:45:38.06931043Z INFO:     106.192.234.66:0 - "GET /api/notifications HTTP/1.1" 200 OK
+2026-04-17T18:45:38.489840116Z INFO:     106.192.234.66:0 - "OPTIONS /api/verification/review-queue?include_completed=true&page_size=100 HTTP/1.1" 200 OK
+2026-04-17T18:45:39.775577824Z INFO:     106.192.234.66:0 - "GET /api/verification/review-queue?include_completed=true&page_size=100 HTTP/1.1" 200 OK
+2026-04-17T18:45:53.024470081Z INFO:     106.192.234.66:0 - "GET /api/notifications HTTP/1.1" 200 OK
+2026-04-17T18:45:58.325605181Z INFO:     106.192.234.66:0 - "GET /api/notifications HTTP/1.1" 200 OK
+2026-04-17T18:46:08.273270586Z INFO:     106.192.234.66:0 - "GET /api/notifications HTTP/1.1" 200 OK
+2026-04-17T18:46:10.023287612Z INFO:     106.192.234.66:0 - "OPTIONS /api/auth/me HTTP/1.1" 200 OK
+2026-04-17T18:46:10.332450612Z INFO:     106.192.234.66:0 - "GET /api/auth/me HTTP/1.1" 200 OK
+2026-04-17T18:46:10.663424428Z INFO:     106.192.234.66:0 - "OPTIONS /api/verification/requests HTTP/1.1" 200 OK
+2026-04-17T18:46:10.67116759Z INFO:     106.192.234.66:0 - "GET /api/notifications HTTP/1.1" 200 OK
+2026-04-17T18:46:11.004065149Z INFO:     106.192.234.66:0 - "GET /api/verification/requests HTTP/1.1" 200 OK
+2026-04-17T18:46:23.268666437Z INFO:     106.192.234.66:0 - "GET /api/notifications HTTP/1.1" 200 OK
+2026-04-17T18:46:25.686365866Z INFO:     106.192.234.66:0 - "GET /api/notifications HTTP/1.1" 200 OK
+2026-04-17T18:46:38.256504609Z INFO:     106.192.234.66:0 - "GET /api/notifications HTTP/1.1" 200 OK
+2026-04-17T18:46:40.683974559Z INFO:     106.192.234.66:0 - "GET /api/notifications HTTP/1.1" 200 OK
+2026-04-17T18:46:53.269801299Z INFO:     106.192.234.66:0 - "GET /api/notifications HTTP/1.1" 200 OK
+2026-04-17T18:46:55.683956237Z INFO:     106.192.234.66:0 - "GET /api/notifications HTTP/1.1" 200 OK
+2026-04-17T18:46:59.916939633Z INFO:     106.192.234.66:0 - "OPTIONS /api/verification/requests HTTP/1.1" 200 OK
+2026-04-17T18:47:00.21646886Z INFO:     106.192.234.66:0 - "POST /api/verification/requests HTTP/1.1" 500 Internal Server Error
+2026-04-17T18:47:00.233690441Z ERROR:    Exception in ASGI application
+2026-04-17T18:47:00.233710482Z Traceback (most recent call last):
+2026-04-17T18:47:00.233717392Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/uvicorn/protocols/http/httptools_impl.py", line 409, in run_asgi
+2026-04-17T18:47:00.233725022Z     result = await app(  # type: ignore[func-returns-value]
+2026-04-17T18:47:00.233730352Z              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-04-17T18:47:00.233735943Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+2026-04-17T18:47:00.233764183Z     return await self.app(scope, receive, send)
+2026-04-17T18:47:00.233822155Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-04-17T18:47:00.233826785Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/fastapi/applications.py", line 1054, in __call__
+2026-04-17T18:47:00.233829965Z     await super().__call__(scope, receive, send)
+2026-04-17T18:47:00.233833235Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/starlette/applications.py", line 113, in __call__
+2026-04-17T18:47:00.233839835Z     await self.middleware_stack(scope, receive, send)
+2026-04-17T18:47:00.233843095Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 187, in __call__
+2026-04-17T18:47:00.233846206Z     raise exc
+2026-04-17T18:47:00.233849546Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 165, in __call__
+2026-04-17T18:47:00.233853146Z     await self.app(scope, receive, _send)
+2026-04-17T18:47:00.233856346Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/starlette/middleware/cors.py", line 93, in __call__
+2026-04-17T18:47:00.233860206Z     await self.simple_response(scope, receive, send, request_headers=headers)
+2026-04-17T18:47:00.233863576Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/starlette/middleware/cors.py", line 144, in simple_response
+2026-04-17T18:47:00.233866786Z     await self.app(scope, receive, send)
+2026-04-17T18:47:00.233869966Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 62, in __call__
+2026-04-17T18:47:00.233873196Z     await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+2026-04-17T18:47:00.233876256Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+2026-04-17T18:47:00.233879327Z     raise exc
+2026-04-17T18:47:00.233882357Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+2026-04-17T18:47:00.233885547Z     await app(scope, receive, sender)
+2026-04-17T18:47:00.233889107Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/starlette/routing.py", line 715, in __call__
+2026-04-17T18:47:00.233892197Z     await self.middleware_stack(scope, receive, send)
+2026-04-17T18:47:00.233895437Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/starlette/routing.py", line 735, in app
+2026-04-17T18:47:00.233898547Z     await route.handle(scope, receive, send)
+2026-04-17T18:47:00.233901607Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/starlette/routing.py", line 288, in handle
+2026-04-17T18:47:00.233904767Z     await self.app(scope, receive, send)
+2026-04-17T18:47:00.233907817Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/starlette/routing.py", line 76, in app
+2026-04-17T18:47:00.233910857Z     await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+2026-04-17T18:47:00.233914017Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+2026-04-17T18:47:00.233916917Z     raise exc
+2026-04-17T18:47:00.233920228Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+2026-04-17T18:47:00.233923198Z     await app(scope, receive, sender)
+2026-04-17T18:47:00.233926358Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/starlette/routing.py", line 73, in app
+2026-04-17T18:47:00.233930078Z     response = await f(request)
+2026-04-17T18:47:00.233933178Z                ^^^^^^^^^^^^^^^^
+2026-04-17T18:47:00.233942378Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 301, in app
+2026-04-17T18:47:00.233945788Z     raw_response = await run_endpoint_function(
+2026-04-17T18:47:00.233948938Z                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-04-17T18:47:00.233951869Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 212, in run_endpoint_function
+2026-04-17T18:47:00.233955079Z     return await dependant.call(**values)
+2026-04-17T18:47:00.233958689Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-04-17T18:47:00.233961869Z   File "/opt/render/project/src/backend/app/api/verification.py", line 41, in create_verification_request
+2026-04-17T18:47:00.233964959Z     req = await create_request(db, current_user, data)
+2026-04-17T18:47:00.233967969Z           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-04-17T18:47:00.233971509Z   File "/opt/render/project/src/backend/app/services/verification_service.py", line 34, in create_request
+2026-04-17T18:47:00.233975059Z     existing = result.scalar_one_or_none()
+2026-04-17T18:47:00.233978339Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-04-17T18:47:00.23399927Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/engine/result.py", line 1487, in scalar_one_or_none
+2026-04-17T18:47:00.2340029Z     return self._only_one_row(
+2026-04-17T18:47:00.23400614Z            ^^^^^^^^^^^^^^^^^^^
+2026-04-17T18:47:00.23400929Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/engine/result.py", line 805, in _only_one_row
+2026-04-17T18:47:00.23401243Z     raise exc.MultipleResultsFound(
+2026-04-17T18:47:00.23401642Z sqlalchemy.exc.MultipleResultsFound: Multiple rows were found when one or none was required
+2026-04-17T18:47:08.258775811Z INFO:     106.192.234.66:0 - "GET /api/notifications HTTP/1.1" 200 OK
+2026-04-17T18:47:10.66844737Z INFO:     106.192.234.66:0 - "GET /api/notifications HTTP/1.1" 200 OK
+2026-04-17T18:47:13.998584281Z INFO:     106.192.234.66:0 - "POST /api/verification/requests HTTP/1.1" 500 Internal Server Error
+2026-04-17T18:47:13.999729842Z ERROR:    Exception in ASGI application
+2026-04-17T18:47:13.999764133Z Traceback (most recent call last):
+2026-04-17T18:47:13.999772074Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/uvicorn/protocols/http/httptools_impl.py", line 409, in run_asgi
+2026-04-17T18:47:13.999775634Z     result = await app(  # type: ignore[func-returns-value]
+2026-04-17T18:47:13.999777984Z              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-04-17T18:47:13.999781084Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+2026-04-17T18:47:13.999783554Z     return await self.app(scope, receive, send)
+2026-04-17T18:47:13.999785854Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-04-17T18:47:13.999788544Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/fastapi/applications.py", line 1054, in __call__
+2026-04-17T18:47:13.999791064Z     await super().__call__(scope, receive, send)
+2026-04-17T18:47:13.999794284Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/starlette/applications.py", line 113, in __call__
+2026-04-17T18:47:13.999797134Z     await self.middleware_stack(scope, receive, send)
+2026-04-17T18:47:13.999799524Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 187, in __call__
+2026-04-17T18:47:13.999801514Z     raise exc
+2026-04-17T18:47:13.999803344Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 165, in __call__
+2026-04-17T18:47:13.999805135Z     await self.app(scope, receive, _send)
+2026-04-17T18:47:13.999818035Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/starlette/middleware/cors.py", line 93, in __call__
+2026-04-17T18:47:13.999820255Z     await self.simple_response(scope, receive, send, request_headers=headers)
+2026-04-17T18:47:13.999821955Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/starlette/middleware/cors.py", line 144, in simple_response
+2026-04-17T18:47:13.999823645Z     await self.app(scope, receive, send)
+2026-04-17T18:47:13.999825295Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 62, in __call__
+2026-04-17T18:47:13.999827115Z     await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+2026-04-17T18:47:13.999828805Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+2026-04-17T18:47:13.999830495Z     raise exc
+2026-04-17T18:47:13.999832255Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+2026-04-17T18:47:13.999833925Z     await app(scope, receive, sender)
+2026-04-17T18:47:13.999835945Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/starlette/routing.py", line 715, in __call__
+2026-04-17T18:47:13.999837685Z     await self.middleware_stack(scope, receive, send)
+2026-04-17T18:47:13.999839396Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/starlette/routing.py", line 735, in app
+2026-04-17T18:47:13.999841116Z     await route.handle(scope, receive, send)
+2026-04-17T18:47:13.999842785Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/starlette/routing.py", line 288, in handle
+2026-04-17T18:47:13.999844465Z     await self.app(scope, receive, send)
+2026-04-17T18:47:13.999846116Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/starlette/routing.py", line 76, in app
+2026-04-17T18:47:13.999847786Z     await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+2026-04-17T18:47:13.999849826Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+2026-04-17T18:47:13.999851546Z     raise exc
+2026-04-17T18:47:13.999856976Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+2026-04-17T18:47:13.999858876Z     await app(scope, receive, sender)
+2026-04-17T18:47:13.999861016Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/starlette/routing.py", line 73, in app
+2026-04-17T18:47:13.999864726Z     response = await f(request)
+2026-04-17T18:47:13.999867626Z                ^^^^^^^^^^^^^^^^
+2026-04-17T18:47:13.999870106Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 301, in app
+2026-04-17T18:47:13.999872816Z     raw_response = await run_endpoint_function(
+2026-04-17T18:47:13.999875666Z                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-04-17T18:47:13.999878317Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 212, in run_endpoint_function
+2026-04-17T18:47:13.999881217Z     return await dependant.call(**values)
+2026-04-17T18:47:13.999883927Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-04-17T18:47:13.999886727Z   File "/opt/render/project/src/backend/app/api/verification.py", line 41, in create_verification_request
+2026-04-17T18:47:13.999889927Z     req = await create_request(db, current_user, data)
+2026-04-17T18:47:13.999891667Z           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-04-17T18:47:13.999893327Z   File "/opt/render/project/src/backend/app/services/verification_service.py", line 34, in create_request
+2026-04-17T18:47:13.999898677Z     existing = result.scalar_one_or_none()
+2026-04-17T18:47:13.999900477Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-04-17T18:47:13.999912498Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/engine/result.py", line 1487, in scalar_one_or_none
+2026-04-17T18:47:13.999914478Z     return self._only_one_row(
+2026-04-17T18:47:13.999916178Z            ^^^^^^^^^^^^^^^^^^^
+2026-04-17T18:47:13.999917918Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/engine/result.py", line 805, in _only_one_row
+2026-04-17T18:47:13.999919608Z     raise exc.MultipleResultsFound(
+2026-04-17T18:47:13.999921828Z sqlalchemy.exc.MultipleResultsFound: Multiple rows were found when one or none was required
+2026-04-17T18:47:23.276557911Z INFO:     106.192.234.66:0 - "GET /api/notifications HTTP/1.1" 200 OK
+2026-04-17T18:47:26.273670901Z INFO:     106.192.234.66:0 - "GET /api/notifications HTTP/1.1" 200 OK
