@@ -37,5 +37,24 @@ async def get_db() -> AsyncSession:  # type: ignore[misc]
 
 async def init_db() -> None:
     import app.models  # noqa: F401 — ensure all models registered
+    from sqlalchemy import text
+
     async with engine.begin() as conn:
+        # Create any new tables (e.g. notifications)
         await conn.run_sync(Base.metadata.create_all)
+
+        # Add missing columns on PostgreSQL (ALTER TABLE is not handled by create_all)
+        if engine.dialect.name == "postgresql":
+            await conn.execute(text("""
+                DO $$
+                BEGIN
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns
+                        WHERE table_name = 'verification_requests'
+                          AND column_name = 'last_message_at'
+                    ) THEN
+                        ALTER TABLE verification_requests
+                        ADD COLUMN last_message_at TIMESTAMP WITH TIME ZONE;
+                    END IF;
+                END $$;
+            """))
