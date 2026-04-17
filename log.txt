@@ -1,0 +1,200 @@
+2026-04-17T07:21:01.281488062Z Using cached pytest-8.3.4-py3-none-any.whl (343 kB)
+2026-04-17T07:21:01.283638213Z Using cached pytest_asyncio-0.25.0-py3-none-any.whl (19 kB)
+2026-04-17T07:21:01.285111028Z Using cached resend-2.5.1-py2.py3-none-any.whl (19 kB)
+2026-04-17T07:21:01.293720334Z Using cached asyncpg-0.30.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.1 MB)
+2026-04-17T07:21:01.301012017Z Using cached psycopg2_binary-2.9.10-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.0 MB)
+2026-04-17T07:21:01.307158504Z Using cached httpcore-1.0.9-py3-none-any.whl (78 kB)
+2026-04-17T07:21:01.309474179Z Using cached pydantic_core-2.27.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.0 MB)
+2026-04-17T07:21:01.314010277Z Using cached bcrypt-4.3.0-cp39-abi3-manylinux_2_34_x86_64.whl (284 kB)
+2026-04-17T07:21:01.316017195Z Using cached annotated_types-0.7.0-py3-none-any.whl (13 kB)
+2026-04-17T07:21:01.317527631Z Using cached cffi-2.0.0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (215 kB)
+2026-04-17T07:21:01.319437376Z Using cached click-8.3.2-py3-none-any.whl (108 kB)
+2026-04-17T07:21:01.327473818Z Using cached cryptography-46.0.7-cp311-abi3-manylinux_2_34_x86_64.whl (4.5 MB)
+2026-04-17T07:21:01.337075157Z Using cached cssselect2-0.9.0-py3-none-any.whl (15 kB)
+2026-04-17T07:21:01.338818288Z Using cached dnspython-2.8.0-py3-none-any.whl (331 kB)
+2026-04-17T07:21:01.340910068Z Using cached ecdsa-0.19.2-py2.py3-none-any.whl (150 kB)
+2026-04-17T07:21:01.342968347Z Using cached greenlet-3.4.0-cp311-cp311-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (613 kB)
+2026-04-17T07:21:01.345250471Z Using cached h11-0.16.0-py3-none-any.whl (37 kB)
+2026-04-17T07:21:01.347018743Z Using cached httptools-0.7.1-cp311-cp311-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (456 kB)
+2026-04-17T07:21:01.349085483Z Using cached idna-3.11-py3-none-any.whl (71 kB)
+2026-04-17T07:21:01.350822524Z Using cached markupsafe-3.0.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (22 kB)
+2026-04-17T07:21:01.370777829Z Using cached pillow-12.2.0-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (7.1 MB)
+2026-04-17T07:21:01.38464924Z Using cached pluggy-1.6.0-py3-none-any.whl (20 kB)
+2026-04-17T07:21:01.386164766Z Using cached pydyf-0.12.1-py3-none-any.whl (8.0 kB)
+2026-04-17T07:21:01.391962004Z Using cached pyphen-0.17.2-py3-none-any.whl (2.1 MB)
+2026-04-17T07:21:01.396554874Z Using cached python_dotenv-1.2.2-py3-none-any.whl (22 kB)
+2026-04-17T07:21:01.398395067Z Using cached pyyaml-6.0.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (806 kB)
+2026-04-17T07:21:01.401132182Z Using cached requests-2.33.1-py3-none-any.whl (64 kB)
+2026-04-17T07:21:01.402755521Z Using cached certifi-2026.2.25-py3-none-any.whl (153 kB)
+2026-04-17T07:21:01.404594945Z Using cached six-1.17.0-py2.py3-none-any.whl (11 kB)
+2026-04-17T07:21:01.411071959Z Using cached SQLAlchemy-2.0.36-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.2 MB)
+2026-04-17T07:21:01.417290327Z Using cached starlette-0.41.3-py3-none-any.whl (73 kB)
+2026-04-17T07:21:01.418924756Z Using cached anyio-4.13.0-py3-none-any.whl (114 kB)
+2026-04-17T07:21:01.420677608Z Using cached tinycss2-1.5.1-py3-none-any.whl (28 kB)
+2026-04-17T07:21:01.422277306Z Using cached tinyhtml5-2.1.0-py3-none-any.whl (39 kB)
+2026-04-17T07:21:01.423818963Z Using cached typing_extensions-4.15.0-py3-none-any.whl (44 kB)
+2026-04-17T07:21:01.425507713Z Using cached urllib3-2.6.3-py3-none-any.whl (131 kB)
+2026-04-17T07:21:01.430389299Z Using cached uvloop-0.22.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (3.8 MB)
+2026-04-17T07:21:01.438912752Z Using cached watchfiles-1.1.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (456 kB)
+2026-04-17T07:21:01.441052053Z Using cached websockets-16.0-cp311-cp311-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (184 kB)
+2026-04-17T07:21:01.442926468Z Using cached iniconfig-2.3.0-py3-none-any.whl (7.5 kB)
+2026-04-17T07:21:01.444377253Z Using cached mako-1.3.11-py3-none-any.whl (78 kB)
+2026-04-17T07:21:01.446118984Z Using cached packaging-26.1-py3-none-any.whl (95 kB)
+2026-04-17T07:21:01.447916857Z Using cached passlib-1.7.4-py2.py3-none-any.whl (525 kB)
+2026-04-17T07:21:01.450281483Z Using cached pyasn1-0.6.3-py3-none-any.whl (83 kB)
+2026-04-17T07:21:01.451913262Z Using cached python_jose-3.3.0-py2.py3-none-any.whl (33 kB)
+2026-04-17T07:21:01.453532401Z Using cached rsa-4.9.1-py3-none-any.whl (34 kB)
+2026-04-17T07:21:01.455096018Z Using cached uvicorn-0.34.0-py3-none-any.whl (62 kB)
+2026-04-17T07:21:01.458576911Z Using cached brotli-1.2.0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (1.4 MB)
+2026-04-17T07:21:01.462246018Z Using cached charset_normalizer-3.4.7-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (214 kB)
+2026-04-17T07:21:01.464199445Z Using cached webencodings-0.5.1-py2.py3-none-any.whl (11 kB)
+2026-04-17T07:21:01.465936506Z Using cached zopfli-0.4.1-cp310-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (829 kB)
+2026-04-17T07:21:01.480957904Z Using cached fonttools-4.62.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (5.1 MB)
+2026-04-17T07:21:01.49169848Z Using cached pycparser-3.0-py3-none-any.whl (48 kB)
+2026-04-17T07:21:01.876035536Z Installing collected packages: webencodings, passlib, brotli, zopfli, websockets, uvloop, urllib3, typing-extensions, tinyhtml5, tinycss2, six, pyyaml, python-multipart, python-dotenv, Pyphen, pydyf, pycparser, pyasn1, psycopg2-binary, pluggy, Pillow, packaging, MarkupSafe, iniconfig, idna, httptools, h11, greenlet, fonttools, dnspython, click, charset_normalizer, certifi, bcrypt, asyncpg, annotated-types, aiofiles, uvicorn, sqlalchemy, rsa, requests, pytest, pydantic-core, Mako, jinja2, httpcore, email-validator, ecdsa, cssselect2, cloudinary, cffi, anyio, aiosqlite, weasyprint, watchfiles, starlette, resend, python-jose, pytest-asyncio, pydantic, httpx, cryptography, alembic, pydantic-settings, fastapi
+2026-04-17T07:21:09.961130017Z Successfully installed Mako-1.3.11 MarkupSafe-3.0.3 Pillow-12.2.0 Pyphen-0.17.2 aiofiles-24.1.0 aiosqlite-0.20.0 alembic-1.14.1 annotated-types-0.7.0 anyio-4.13.0 asyncpg-0.30.0 bcrypt-4.3.0 brotli-1.2.0 certifi-2026.2.25 cffi-2.0.0 charset_normalizer-3.4.7 click-8.3.2 cloudinary-1.41.0 cryptography-46.0.7 cssselect2-0.9.0 dnspython-2.8.0 ecdsa-0.19.2 email-validator-2.2.0 fastapi-0.115.6 fonttools-4.62.1 greenlet-3.4.0 h11-0.16.0 httpcore-1.0.9 httptools-0.7.1 httpx-0.28.1 idna-3.11 iniconfig-2.3.0 jinja2-3.1.5 packaging-26.1 passlib-1.7.4 pluggy-1.6.0 psycopg2-binary-2.9.10 pyasn1-0.6.3 pycparser-3.0 pydantic-2.10.4 pydantic-core-2.27.2 pydantic-settings-2.7.1 pydyf-0.12.1 pytest-8.3.4 pytest-asyncio-0.25.0 python-dotenv-1.2.2 python-jose-3.3.0 python-multipart-0.0.20 pyyaml-6.0.3 requests-2.33.1 resend-2.5.1 rsa-4.9.1 six-1.17.0 sqlalchemy-2.0.36 starlette-0.41.3 tinycss2-1.5.1 tinyhtml5-2.1.0 typing-extensions-4.15.0 urllib3-2.6.3 uvicorn-0.34.0 uvloop-0.22.1 watchfiles-1.1.1 weasyprint-63.1 webencodings-0.5.1 websockets-16.0 zopfli-0.4.1
+2026-04-17T07:21:10.000827333Z 
+2026-04-17T07:21:10.000855264Z [notice] A new release of pip is available: 23.2.1 -> 26.0.1
+2026-04-17T07:21:10.000860384Z [notice] To update, run: pip install --upgrade pip
+2026-04-17T07:21:11.895200221Z (trapped) error reading bcrypt version
+2026-04-17T07:21:11.895228901Z Traceback (most recent call last):
+2026-04-17T07:21:11.895234212Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+2026-04-17T07:21:11.895241472Z     version = _bcrypt.__about__.__version__
+2026-04-17T07:21:11.895245952Z               ^^^^^^^^^^^^^^^^^
+2026-04-17T07:21:11.895250642Z AttributeError: module 'bcrypt' has no attribute '__about__'
+2026-04-17T07:21:12.981188731Z Traceback (most recent call last):
+2026-04-17T07:21:12.981213402Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 561, in _executemany
+2026-04-17T07:21:12.981402036Z     return await self._connection.executemany(
+2026-04-17T07:21:12.981417647Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-04-17T07:21:12.981426247Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/asyncpg/connection.py", line 390, in executemany
+2026-04-17T07:21:12.981515469Z     return await self._executemany(command, args, timeout)
+2026-04-17T07:21:12.98155286Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-04-17T07:21:12.98155851Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/asyncpg/connection.py", line 1988, in _executemany
+2026-04-17T07:21:12.981833777Z     result, _ = await self._do_execute(
+2026-04-17T07:21:12.981854437Z                 ^^^^^^^^^^^^^^^^^^^^^^^
+2026-04-17T07:21:12.981857687Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/asyncpg/connection.py", line 2024, in _do_execute
+2026-04-17T07:21:12.982138264Z     result = await executor(stmt, None)
+2026-04-17T07:21:12.982150014Z              ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-04-17T07:21:12.982154064Z   File "asyncpg/protocol/protocol.pyx", line 268, in bind_execute_many
+2026-04-17T07:21:12.982318028Z asyncpg.exceptions.UniqueViolationError: duplicate key value violates unique constraint "users_pkey"
+2026-04-17T07:21:12.982325068Z DETAIL:  Key (id)=(inv-001) already exists.
+2026-04-17T07:21:12.982328328Z 
+2026-04-17T07:21:12.982332769Z The above exception was the direct cause of the following exception:
+2026-04-17T07:21:12.982335858Z 
+2026-04-17T07:21:12.982339169Z Traceback (most recent call last):
+2026-04-17T07:21:12.982342929Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1936, in _exec_single_context
+2026-04-17T07:21:12.982632136Z     self.dialect.do_executemany(
+2026-04-17T07:21:12.982638106Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 938, in do_executemany
+2026-04-17T07:21:12.98282023Z     cursor.executemany(statement, parameters)
+2026-04-17T07:21:12.982862041Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 573, in executemany
+2026-04-17T07:21:12.983043775Z     return self._adapt_connection.await_(
+2026-04-17T07:21:12.983047975Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-04-17T07:21:12.983050275Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 132, in await_only
+2026-04-17T07:21:12.983132957Z     return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+2026-04-17T07:21:12.983159448Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-04-17T07:21:12.983161838Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 196, in greenlet_spawn
+2026-04-17T07:21:12.983266781Z     value = await result
+2026-04-17T07:21:12.983269491Z             ^^^^^^^^^^^^
+2026-04-17T07:21:12.983271471Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 565, in _executemany
+2026-04-17T07:21:12.983449745Z     self._handle_exception(error)
+2026-04-17T07:21:12.983452535Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 497, in _handle_exception
+2026-04-17T07:21:12.983629329Z     self._adapt_connection._handle_exception(error)
+2026-04-17T07:21:12.983632619Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 780, in _handle_exception
+2026-04-17T07:21:12.983855534Z     raise translated_error from error
+2026-04-17T07:21:12.983861665Z sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_dbapi.IntegrityError: <class 'asyncpg.exceptions.UniqueViolationError'>: duplicate key value violates unique constraint "users_pkey"
+2026-04-17T07:21:12.983863685Z DETAIL:  Key (id)=(inv-001) already exists.
+2026-04-17T07:21:12.983865575Z 
+2026-04-17T07:21:12.983867855Z The above exception was the direct cause of the following exception:
+2026-04-17T07:21:12.983869795Z 
+2026-04-17T07:21:12.983871885Z Traceback (most recent call last):
+2026-04-17T07:21:12.983877175Z   File "/opt/render/project/src/backend/seed.py", line 228, in <module>
+2026-04-17T07:21:12.984003788Z     asyncio.run(seed())
+2026-04-17T07:21:12.984007098Z   File "/opt/render/project/python/Python-3.11.7/lib/python3.11/asyncio/runners.py", line 190, in run
+2026-04-17T07:21:12.98409157Z     return runner.run(main)
+2026-04-17T07:21:12.98409459Z            ^^^^^^^^^^^^^^^^
+2026-04-17T07:21:12.98409663Z   File "/opt/render/project/python/Python-3.11.7/lib/python3.11/asyncio/runners.py", line 118, in run
+2026-04-17T07:21:12.984178082Z     return self._loop.run_until_complete(task)
+2026-04-17T07:21:12.984180952Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-04-17T07:21:12.984183462Z   File "/opt/render/project/python/Python-3.11.7/lib/python3.11/asyncio/base_events.py", line 653, in run_until_complete
+2026-04-17T07:21:12.984326536Z     return future.result()
+2026-04-17T07:21:12.984329336Z            ^^^^^^^^^^^^^^^
+2026-04-17T07:21:12.984331586Z   File "/opt/render/project/src/backend/seed.py", line 217, in seed
+2026-04-17T07:21:12.984423728Z     await db.commit()
+2026-04-17T07:21:12.984426448Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/ext/asyncio/session.py", line 1009, in commit
+2026-04-17T07:21:12.984596972Z     await greenlet_spawn(self.sync_session.commit)
+2026-04-17T07:21:12.984599692Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 203, in greenlet_spawn
+2026-04-17T07:21:12.984672384Z     result = context.switch(value)
+2026-04-17T07:21:12.984694625Z              ^^^^^^^^^^^^^^^^^^^^^
+2026-04-17T07:21:12.984696935Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2028, in commit
+2026-04-17T07:21:12.984974001Z     trans.commit(_to_root=True)
+2026-04-17T07:21:12.984979912Z   File "<string>", line 2, in commit
+2026-04-17T07:21:12.984982052Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/orm/state_changes.py", line 139, in _go
+2026-04-17T07:21:12.985068903Z     ret_value = fn(self, *arg, **kw)
+2026-04-17T07:21:12.985083184Z                 ^^^^^^^^^^^^^^^^^^^^
+2026-04-17T07:21:12.985086224Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 1313, in commit
+2026-04-17T07:21:12.985282989Z     self._prepare_impl()
+2026-04-17T07:21:12.985285779Z   File "<string>", line 2, in _prepare_impl
+2026-04-17T07:21:12.985287799Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/orm/state_changes.py", line 139, in _go
+2026-04-17T07:21:12.985388861Z     ret_value = fn(self, *arg, **kw)
+2026-04-17T07:21:12.985391551Z                 ^^^^^^^^^^^^^^^^^^^^
+2026-04-17T07:21:12.985393621Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 1288, in _prepare_impl
+2026-04-17T07:21:12.985596886Z     self.session.flush()
+2026-04-17T07:21:12.985599676Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 4352, in flush
+2026-04-17T07:21:12.986096198Z     self._flush(objects)
+2026-04-17T07:21:12.986106658Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 4487, in _flush
+2026-04-17T07:21:12.986588Z     with util.safe_reraise():
+2026-04-17T07:21:12.9865909Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+2026-04-17T07:21:12.986707043Z     raise exc_value.with_traceback(exc_tb)
+2026-04-17T07:21:12.986710763Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 4448, in _flush
+2026-04-17T07:21:12.987200604Z     flush_context.execute()
+2026-04-17T07:21:12.987213815Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/orm/unitofwork.py", line 466, in execute
+2026-04-17T07:21:12.987342418Z     rec.execute(self)
+2026-04-17T07:21:12.987346098Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/orm/unitofwork.py", line 642, in execute
+2026-04-17T07:21:12.987487811Z     util.preloaded.orm_persistence.save_obj(
+2026-04-17T07:21:12.987491101Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/orm/persistence.py", line 93, in save_obj
+2026-04-17T07:21:12.987568483Z     _emit_insert_statements(
+2026-04-17T07:21:12.987572183Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/orm/persistence.py", line 1048, in _emit_insert_statements
+2026-04-17T07:21:12.987742267Z     result = connection.execute(
+2026-04-17T07:21:12.987744817Z              ^^^^^^^^^^^^^^^^^^^
+2026-04-17T07:21:12.987746777Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1418, in execute
+2026-04-17T07:21:12.987967543Z     return meth(
+2026-04-17T07:21:12.987972773Z            ^^^^^
+2026-04-17T07:21:12.987974873Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 515, in _execute_on_connection
+2026-04-17T07:21:12.988098326Z     return connection._execute_clauseelement(
+2026-04-17T07:21:12.988101286Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-04-17T07:21:12.988103256Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1640, in _execute_clauseelement
+2026-04-17T07:21:12.988318711Z     ret = self._execute_context(
+2026-04-17T07:21:12.988321841Z           ^^^^^^^^^^^^^^^^^^^^^^
+2026-04-17T07:21:12.988323861Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1846, in _execute_context
+2026-04-17T07:21:12.988561817Z     return self._exec_single_context(
+2026-04-17T07:21:12.988564657Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-04-17T07:21:12.988566667Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1986, in _exec_single_context
+2026-04-17T07:21:12.988850184Z     self._handle_dbapi_exception(
+2026-04-17T07:21:12.988856804Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2355, in _handle_dbapi_exception
+2026-04-17T07:21:12.9891347Z     raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+2026-04-17T07:21:12.989153511Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1936, in _exec_single_context
+2026-04-17T07:21:12.989410357Z     self.dialect.do_executemany(
+2026-04-17T07:21:12.989413077Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 938, in do_executemany
+2026-04-17T07:21:12.98955803Z     cursor.executemany(statement, parameters)
+2026-04-17T07:21:12.989563351Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 573, in executemany
+2026-04-17T07:21:12.989734605Z     return self._adapt_connection.await_(
+2026-04-17T07:21:12.989737975Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-04-17T07:21:12.989740425Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 132, in await_only
+2026-04-17T07:21:12.989807327Z     return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+2026-04-17T07:21:12.989858588Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-04-17T07:21:12.989864518Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 196, in greenlet_spawn
+2026-04-17T07:21:12.9899558Z     value = await result
+2026-04-17T07:21:12.98995991Z             ^^^^^^^^^^^^
+2026-04-17T07:21:12.98996244Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 565, in _executemany
+2026-04-17T07:21:12.990139795Z     self._handle_exception(error)
+2026-04-17T07:21:12.990143104Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 497, in _handle_exception
+2026-04-17T07:21:12.990297758Z     self._adapt_connection._handle_exception(error)
+2026-04-17T07:21:12.990300958Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 780, in _handle_exception
+2026-04-17T07:21:12.990478792Z     raise translated_error from error
+2026-04-17T07:21:12.990564714Z sqlalchemy.exc.IntegrityError: (sqlalchemy.dialects.postgresql.asyncpg.IntegrityError) <class 'asyncpg.exceptions.UniqueViolationError'>: duplicate key value violates unique constraint "users_pkey"
+2026-04-17T07:21:12.990568165Z DETAIL:  Key (id)=(inv-001) already exists.
+2026-04-17T07:21:12.990572595Z [SQL: INSERT INTO users (id, email, password_hash, first_name, last_name, phone, role, is_active, email_verified, created_at, updated_at) VALUES ($1::VARCHAR, $2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR, $7::userrole, $8::BOOLEAN, $9::BOOLEAN, $10::TIMESTAMP WITH TIME ZONE, $11::TIMESTAMP WITH TIME ZONE)]
+2026-04-17T07:21:12.990578395Z [parameters: [('inv-001', 'investor@demo.com', '$2b$12$ISDq2Jag3ZZW/snn4aIZwOOdEqv3GZFzL5PeiMQM2SxD84hasSo7G', 'Jane', 'Doe', '+1-555-0101', 'INVESTOR', True, True, datetime.datetime(2026, 4, 17, 7, 21, 12, 917120, tzinfo=datetime.timezone.utc), datetime.datetime(2026, 4, 17, 7, 21, 12, 917125, tzinfo=datetime.timezone.utc)), ('inv-002', 'investor2@demo.com', '$2b$12$rGuOcBeCAPzzcCnZiW/i3OJyZfajGxQSNXgD5kzX3rrTnd654nM76', 'Bob', 'Smith', '+1-555-0102', 'INVESTOR', True, True, datetime.datetime(2026, 4, 17, 7, 21, 12, 917126, tzinfo=datetime.timezone.utc), datetime.datetime(2026, 4, 17, 7, 21, 12, 917127, tzinfo=datetime.timezone.utc)), ('rev-001', 'reviewer@demo.com', '$2b$12$Kj7p2aNrDlz3ORh4e224vOf6DkghdXwm2ni33/k0hB2edLxhTZerC', 'Alice', 'Reviewer', '+1-555-0201', 'REVIEWER', True, True, datetime.datetime(2026, 4, 17, 7, 21, 12, 917128, tzinfo=datetime.timezone.utc), datetime.datetime(2026, 4, 17, 7, 21, 12, 917130, tzinfo=datetime.timezone.utc)), ('adm-001', 'admin@demo.com', '$2b$12$/OASRno7W6/MqF0cTnibb.6d9d4hAE6vDZKMUmjyxlA7h6U9JvlC2', 'Admin', 'User', '+1-555-0301', 'ADMIN', True, True, datetime.datetime(2026, 4, 17, 7, 21, 12, 917131, tzinfo=datetime.timezone.utc), datetime.datetime(2026, 4, 17, 7, 21, 12, 917131, tzinfo=datetime.timezone.utc))]]
+2026-04-17T07:21:12.990582825Z (Background on this error at: https://sqlalche.me/e/20/gkpj)
+2026-04-17T07:21:13.122421976Z ==> Build failed 😞
+2026-04-17T07:21:13.122438726Z ==> Common ways to troubleshoot your deploy: https://render.com/docs/troubleshooting-deploys
