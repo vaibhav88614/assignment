@@ -71,9 +71,13 @@ function useCountdown(deadline: string | null) {
 function InfoRequestedBanner({
   infoDeadline,
   onProvideInfo,
+  onUpload,
+  uploading,
 }: {
   infoDeadline: string | null;
   onProvideInfo: (message?: string) => void;
+  onUpload: (file: File, documentType: DocumentType) => void;
+  uploading: boolean;
 }) {
   const { timeLeft, isExpired, isUrgent } = useCountdown(infoDeadline);
   const [responseMessage, setResponseMessage] = useState('');
@@ -131,20 +135,25 @@ function InfoRequestedBanner({
           <p className={`text-sm ${subColor} mt-2`}>
             {isExpired
               ? 'The deadline to provide the requested information has passed. Your request may be automatically denied.'
-              : 'Upload additional documents in the section below and/or provide a written response, then click "Submit Additional Info".'}
+              : 'Upload additional documents and/or provide a written response, then click "Submit Additional Info".'}
           </p>
           {!isExpired && (
             <div className="mt-3 space-y-3">
               <textarea
                 value={responseMessage}
                 onChange={(e) => setResponseMessage(e.target.value)}
-                placeholder="Type your response message here (optional)..."
+                placeholder="Type your response message here (required)..."
                 rows={3}
                 className="w-full rounded-lg border border-orange-200 bg-white px-3 py-2 text-sm placeholder:text-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-300 focus:border-orange-300"
               />
+              <div className="rounded-lg border border-orange-200 bg-white p-3">
+                <p className="text-xs font-medium text-orange-700 mb-2">Upload additional documents</p>
+                <FileUpload onUpload={onUpload} uploading={uploading} />
+              </div>
               <button
                 onClick={() => onProvideInfo(responseMessage)}
-                className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition text-sm font-medium"
+                disabled={!responseMessage.trim()}
+                className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Submit Additional Info
               </button>
@@ -280,8 +289,17 @@ export default function RequestDetailPage() {
   const handleDownloadLetter = async () => {
     if (!request?.has_letter || !request?.letter_id) return;
     try {
-      const baseUrl = api.defaults.baseURL || '/api';
-      window.open(`${baseUrl}/admin/letters/${request.letter_id}/download`, '_blank');
+      const response = await api.get(`/admin/letters/${request.letter_id}/download`, {
+        responseType: 'blob',
+      });
+      const url = URL.createObjectURL(response.data);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `verification_letter.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     } catch {
       setError('Failed to download letter');
     }
@@ -359,6 +377,8 @@ export default function RequestDetailPage() {
               <InfoRequestedBanner
                 infoDeadline={request.info_deadline}
                 onProvideInfo={handleProvideInfo}
+                onUpload={handleUpload}
+                uploading={uploading}
               />
             )}
           </div>

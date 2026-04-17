@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, UploadFile, File, Form
-from fastapi.responses import FileResponse, RedirectResponse
+from fastapi.responses import FileResponse, RedirectResponse, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
@@ -62,10 +62,20 @@ async def download_doc(
     if not _can_read_request(req, current_user):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
 
-    # Cloud-stored files: redirect to Cloudinary URL
+    # Cloud-stored files: proxy the download to avoid CORS issues with redirects
     cloud_url = storage_service.get_download_url(doc.stored_filename)
     if cloud_url:
-        return RedirectResponse(url=cloud_url)
+        import httpx
+
+        async with httpx.AsyncClient() as http_client:
+            cloud_resp = await http_client.get(cloud_url, follow_redirects=True)
+        return Response(
+            content=cloud_resp.content,
+            media_type=doc.mime_type or "application/octet-stream",
+            headers={
+                "Content-Disposition": f'attachment; filename="{doc.original_filename}"'
+            },
+        )
 
     file_path = storage_service.get_file_path(doc.stored_filename)
     return FileResponse(

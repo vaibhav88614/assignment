@@ -248,6 +248,66 @@ export default function NewRequestPage() {
     }
   };
 
+  const getThresholdErrors = (): Record<string, string> => {
+    if (!method) return {};
+    const errors: Record<string, string> = {};
+    const num = (key: string) => Number(attestation[key]) || 0;
+
+    switch (method) {
+      case VerificationMethod.INCOME: {
+        const threshold =
+          attestation['filing_status'] === 'joint' ? 300000 : 200000;
+        const label =
+          attestation['filing_status'] === 'joint'
+            ? '$300,000 (joint)'
+            : '$200,000 (individual)';
+        if (attestation['annual_income_year1']?.trim() && num('annual_income_year1') < threshold)
+          errors['annual_income_year1'] = `Income must be at least ${label} to qualify.`;
+        if (attestation['annual_income_year2']?.trim() && num('annual_income_year2') < threshold)
+          errors['annual_income_year2'] = `Income must be at least ${label} to qualify.`;
+        if (attestation['expected_current_year']?.trim() && num('expected_current_year') < threshold)
+          errors['expected_current_year'] = `Expected income must be at least ${label} to qualify.`;
+        break;
+      }
+      case VerificationMethod.NET_WORTH: {
+        if (attestation['net_worth_excluding_residence']?.trim() && num('net_worth_excluding_residence') < 1000000)
+          errors['net_worth_excluding_residence'] = 'Net worth must exceed $1,000,000 (excluding primary residence) to qualify.';
+        // Also flag if total_assets minus liabilities minus residence < 1M as a warning
+        const assets = num('total_assets');
+        const liabilities = num('total_liabilities');
+        const residence = num('primary_residence_value');
+        if (attestation['total_assets']?.trim() && attestation['total_liabilities']?.trim()) {
+          const computed = assets - liabilities - residence;
+          if (computed < 1000000 && !attestation['net_worth_excluding_residence']?.trim()) {
+            errors['total_assets'] = `Computed net worth ($${computed.toLocaleString()}) is below $1,000,000 threshold.`;
+          }
+        }
+        break;
+      }
+      case VerificationMethod.PROFESSIONAL_CREDENTIAL: {
+        if (attestation['license_status'] === 'Inactive')
+          errors['license_status'] = 'License must be Active to qualify under this method.';
+        break;
+      }
+      case VerificationMethod.ENTITY_ASSETS: {
+        if (attestation['total_assets']?.trim() && num('total_assets') < 5000000)
+          errors['total_assets'] = 'Entity must have total assets exceeding $5,000,000 to qualify.';
+        break;
+      }
+      case VerificationMethod.ENTITY_ALL_OWNERS_ACCREDITED: {
+        if (attestation['owner_count']?.trim() && num('owner_count') < 1)
+          errors['owner_count'] = 'Entity must have at least one equity owner.';
+        break;
+      }
+      default:
+        break;
+    }
+    return errors;
+  };
+
+  const thresholdErrors = getThresholdErrors();
+  const hasThresholdErrors = Object.keys(thresholdErrors).length > 0;
+
   const canNext = () => {
     switch (step) {
       case 0:
@@ -257,6 +317,7 @@ export default function NewRequestPage() {
       case 2:
         return (
           getAttestationFields().every((f) => attestation[f.key]?.trim()) &&
+          !hasThresholdErrors &&
           selfAttestChecks.length > 0 &&
           selfAttestChecks.every(Boolean)
         );
@@ -498,6 +559,18 @@ export default function NewRequestPage() {
               uploaded documents.
             </p>
           </div>
+
+          {hasThresholdErrors && (
+            <div className="bg-red-50 text-red-700 border border-red-200 text-sm px-4 py-3 rounded-xl flex items-start gap-2 animate-fade-in">
+              <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+              <div>
+                <p className="font-semibold">Below accreditation threshold</p>
+                <p className="mt-0.5 text-red-600">
+                  One or more values are below the minimum required for accredited investor status. Please correct them to continue.
+                </p>
+              </div>
+            </div>
+          )}
           <div className="card p-6 space-y-4">
             {getAttestationFields().map((field) => (
               <div key={field.key}>
@@ -508,7 +581,7 @@ export default function NewRequestPage() {
                   <select
                     value={attestation[field.key] || ''}
                     onChange={(e) => setField(field.key, e.target.value)}
-                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400"
+                    className={`w-full rounded-lg border bg-white px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 ${thresholdErrors[field.key] ? 'border-red-300 focus:ring-red-300 focus:border-red-400' : 'border-slate-200 focus:ring-indigo-500/30 focus:border-indigo-400'}`}
                   >
                     <option value="">Select…</option>
                     {field.options?.map((opt) => (
@@ -535,7 +608,7 @@ export default function NewRequestPage() {
                       type={field.type}
                       value={attestation[field.key] || ''}
                       onChange={(e) => setField(field.key, e.target.value)}
-                      className={`w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400 ${
+                      className={`w-full rounded-lg border bg-white px-3 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 ${thresholdErrors[field.key] ? 'border-red-300 focus:ring-red-300 focus:border-red-400' : 'border-slate-200 focus:ring-indigo-500/30 focus:border-indigo-400'} ${
                         field.prefix ? 'pl-7' : ''
                       }`}
                     />
@@ -543,6 +616,12 @@ export default function NewRequestPage() {
                 )}
                 {field.help && (
                   <p className="text-xs text-slate-500 mt-1">{field.help}</p>
+                )}
+                {thresholdErrors[field.key] && (
+                  <p className="text-xs text-red-600 mt-1 flex items-center gap-1">
+                    <AlertCircle className="h-3 w-3 shrink-0" />
+                    {thresholdErrors[field.key]}
+                  </p>
                 )}
               </div>
             ))}

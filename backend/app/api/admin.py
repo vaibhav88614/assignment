@@ -216,7 +216,7 @@ async def download_letter(
 ):
     import os
     from fastapi import HTTPException, status
-    from fastapi.responses import RedirectResponse
+    from fastapi.responses import Response
     from app.services.storage_service import storage_service
 
     result = await db.execute(select(VerificationLetter).where(VerificationLetter.id == letter_id))
@@ -224,10 +224,20 @@ async def download_letter(
     if not letter:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Letter not found")
 
-    # Cloud-stored letters: redirect to Cloudinary URL
+    # Cloud-stored letters: proxy the download to avoid CORS issues
     cloud_url = storage_service.get_download_url(letter.pdf_path)
     if cloud_url:
-        return RedirectResponse(url=cloud_url)
+        import httpx
+
+        async with httpx.AsyncClient() as http_client:
+            cloud_resp = await http_client.get(cloud_url, follow_redirects=True)
+        media_type = "application/pdf" if letter.pdf_path.endswith(".pdf") else "text/html"
+        filename = f"verification_letter_{letter.letter_number}.pdf"
+        return Response(
+            content=cloud_resp.content,
+            media_type=media_type,
+            headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+        )
 
     if not os.path.isfile(letter.pdf_path):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Letter file not found")
