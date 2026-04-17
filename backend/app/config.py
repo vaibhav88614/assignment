@@ -29,10 +29,10 @@ class Settings(BaseSettings):
 
     # Cloudinary (set CLOUDINARY_URL to enable cloud storage)
     # Format: cloudinary://API_KEY:API_SECRET@CLOUD_NAME
-    CLOUDINARY_URL: str = ""
+    CLOUDINARY_URL: str = "cloudinary://366112623952743:_mmw1SazoIxw6jHN49ePF4-KcWI@decvdppwg"
 
     # Email via Resend (set RESEND_API_KEY to enable; leave empty for console logging)
-    RESEND_API_KEY: str = ""
+    RESEND_API_KEY: str = "re_NmNSg8a6_7pLe4yrVroU4yMNmULiLUyzP"
     RESEND_FROM_EMAIL: str = "AccredVerify <noreply@aiv-verify.com>"
 
     # Legacy SMTP (fallback if RESEND_API_KEY is empty and SMTP_HOST is set)
