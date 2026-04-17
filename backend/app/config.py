@@ -49,13 +49,13 @@ class Settings(BaseSettings):
     ISSUER_ORG_ADDRESS: str = "123 Verification Lane, New York, NY 10001"
 
     # CORS — stored as a plain string to avoid pydantic-settings JSON parsing.
-    # Accepts: comma-separated URLs or a JSON array string.
-    CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000"
+    # Use "*" to allow all origins, or comma-separated URLs to restrict.
+    CORS_ORIGINS: str = "*"
 
     def get_cors_origins(self) -> list[str]:
         value = self.CORS_ORIGINS.strip()
-        if not value:
-            return ["http://localhost:5173"]
+        if not value or value == "*":
+            return ["*"]
         if value.startswith("["):
             import json
             return json.loads(value)
