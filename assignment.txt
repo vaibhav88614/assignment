@@ -9,3 +9,64 @@ The focus is on developing the Accreditation verification system — home page, 
 "Get Free Accreditation" on the Realtyslices.com site is a quick-and-dirty implementation of the experience... I expect you to over-achieve, especially with today's AI tools.
  
 Please reach out to me if you need more context.
+
+
+
+
+
+Issues to Solve
+1. Message Visibility (Investor + Issuer)
+    When a message is pending, users don’t know
+    Design a clear system for:
+    Notifications
+    Visual indicators (badges, highlights, etc.)
+    Priority/urgency cues
+2. Completed Requests (Issuer UX)
+    Issuer cannot easily view completed requests
+    Design:
+    Where this should live (tab, filter, section)
+    How it should be organized (timeline, table, etc.)
+    What metadata should be visible
+3. Document Upload Clarity (Investor UX)
+    No clarity on which documents are accepted as proof
+    Design:
+    A predefined document checklist
+    Upload UI with validation states
+    Error handling + success confirmation
+4. Clickable Tiles Behavior (Dashboard UX)
+    Users expect tiles (like "Awaiting Info") to be interactive (Power BI mental model)
+    Design:
+    Click interactions (filter, drill-down, navigation)
+    State transitions
+    Feedback when clicked
+5. Approval Flow Clarity (Issuer UX)
+    It’s unclear how an issuer approves a request
+    Redesign:
+    Clear CTA hierarchy (Approve / Reject / Request Info)
+    Visual state progression (e.g., Pending → Reviewing → Approved)
+    Where actions live (table row, detail page, modal, etc.)
+6. “Waiting for Info” UX Inconsistency
+    Separate UX exists but eventually redirects to chat
+    Evaluate:
+    Should this be merged into chat?
+    Or should it remain separate?
+    Provide:
+    Final recommendation
+    Justification based on UX principles
+    Clean flow design
+
+Output Format  (Structure your response like this):
+
+1. Problem → Insight → Solution
+2. Wireframe-level explanation (text-based)
+3. UI components to use (badges, tabs, modals, etc.)
+4. User flow (step-by-step)
+5. Best practices / real-world patterns (if applicable)
+
+
+Constraints
+
+1. Keep it practical and implementation-ready
+2. Avoid generic UX theory
+3. Think like you're shipping this in a real product sprint
+4. Prioritize clarity, visibility, and user control
