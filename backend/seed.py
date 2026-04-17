@@ -21,6 +21,14 @@ async def seed():
     await init_db()
 
     async with async_session() as db:
+        # Check if seed data already exists (idempotent for re-deploys)
+        from sqlalchemy import select, func
+        result = await db.execute(select(func.count()).select_from(User))
+        user_count = result.scalar() or 0
+        if user_count > 0:
+            print("Seed data already exists — skipping. (Database has", user_count, "users)")
+            return
+
         # --- Users ---
         investor1 = User(
             id="inv-001",
