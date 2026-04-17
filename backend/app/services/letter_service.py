@@ -53,13 +53,16 @@ async def generate_letter(
     pdf_filename = f"letter_{letter_number.replace('-', '_')}.pdf"
 
     try:
-        from weasyprint import HTML
-        pdf_bytes = HTML(string=html_content).write_pdf()
+        import io as _io
+        from xhtml2pdf import pisa
+
+        pdf_buffer = _io.BytesIO()
+        pisa_status = pisa.CreatePDF(html_content, dest=pdf_buffer)
+        if pisa_status.err:
+            raise RuntimeError(f"xhtml2pdf error count: {pisa_status.err}")
+        pdf_bytes = pdf_buffer.getvalue()
         stored_path = await storage_service.save_letter(pdf_bytes, pdf_filename, is_pdf=True)
     except Exception as e:
-        # WeasyPrint not installed or its native deps (GTK/Pango/libgobject)
-        # can't be loaded (common on Windows, raises OSError at import).
-        # Save HTML as fallback so approval still succeeds.
         logger.warning("PDF generation failed (%s); falling back to HTML letter.", e)
         html_filename = pdf_filename.replace(".pdf", ".html")
         stored_path = await storage_service.save_letter(html_content, html_filename, is_pdf=False)

@@ -224,24 +224,51 @@ async def download_letter(
     if not letter:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Letter not found")
 
-    # Cloud-stored letters: proxy the download to avoid CORS issues
+    filename = f"verification_letter_{letter.letter_number}.pdf"
+
+    # Try to generate a fresh PDF from the stored HTML (always available in DB)
+    if letter.letter_html:
+        try:
+            import io as _io
+            from xhtml2pdf import pisa
+
+            pdf_buffer = _io.BytesIO()
+            pisa_status = pisa.CreatePDF(letter.letter_html, dest=pdf_buffer)
+            if not pisa_status.err:
+                return Response(
+                    content=pdf_buffer.getvalue(),
+                    media_type="application/pdf",
+                    headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+                )
+        except Exception:
+            pass  # fall through to other methods
+
+    # Cloud-stored file: proxy the download
     cloud_url = storage_service.get_download_url(letter.pdf_path)
     if cloud_url:
         import httpx
 
         async with httpx.AsyncClient() as http_client:
             cloud_resp = await http_client.get(cloud_url, follow_redirects=True)
+        if len(cloud_resp.content) > 0:
+            media_type = "application/pdf" if letter.pdf_path.endswith(".pdf") else "text/html"
+            return Response(
+                content=cloud_resp.content,
+                media_type=media_type,
+                headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+            )
+
+    # Local file fallback
+    if os.path.isfile(letter.pdf_path):
         media_type = "application/pdf" if letter.pdf_path.endswith(".pdf") else "text/html"
-        filename = f"verification_letter_{letter.letter_number}.pdf"
+        return FileResponse(path=letter.pdf_path, filename=filename, media_type=media_type)
+
+    # Last resort: serve the HTML directly
+    if letter.letter_html:
         return Response(
-            content=cloud_resp.content,
-            media_type=media_type,
-            headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+            content=letter.letter_html.encode("utf-8"),
+            media_type="text/html",
+            headers={"Content-Disposition": f'attachment; filename="{filename.replace(".pdf", ".html")}"'},
         )
 
-    if not os.path.isfile(letter.pdf_path):
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Letter file not found")
-
-    media_type = "application/pdf" if letter.pdf_path.endswith(".pdf") else "text/html"
-    filename = f"verification_letter_{letter.letter_number}.pdf"
-    return FileResponse(path=letter.pdf_path, filename=filename, media_type=media_type)
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Letter file not found")
