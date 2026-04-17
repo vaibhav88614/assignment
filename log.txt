@@ -1,2 +1,50 @@
-23:11:06.786 src/pages/DashboardPage.tsx(1,40): error TS6133: 'useCallback' is declared but its value is never read.
-23:11:07.697 Error: Command "npm run build" exited with 2
+2026-04-17T17:47:41.044022081Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2362, in execute
+2026-04-17T17:47:41.044024101Z     return self._execute_internal(
+2026-04-17T17:47:41.044026042Z            ^^^^^^^^^^^^^^^^^^^^^^^
+2026-04-17T17:47:41.044027982Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2247, in _execute_internal
+2026-04-17T17:47:41.044030032Z     result: Result[Any] = compile_state_cls.orm_execute_statement(
+2026-04-17T17:47:41.044032002Z                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-04-17T17:47:41.044041022Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/orm/context.py", line 305, in orm_execute_statement
+2026-04-17T17:47:41.044044583Z     result = conn.execute(
+2026-04-17T17:47:41.044047773Z              ^^^^^^^^^^^^^
+2026-04-17T17:47:41.044050863Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1418, in execute
+2026-04-17T17:47:41.044054033Z     return meth(
+2026-04-17T17:47:41.044057423Z            ^^^^^
+2026-04-17T17:47:41.044060233Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 515, in _execute_on_connection
+2026-04-17T17:47:41.044062224Z     return connection._execute_clauseelement(
+2026-04-17T17:47:41.044064174Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-04-17T17:47:41.044066134Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1640, in _execute_clauseelement
+2026-04-17T17:47:41.044068184Z     ret = self._execute_context(
+2026-04-17T17:47:41.044070134Z           ^^^^^^^^^^^^^^^^^^^^^^
+2026-04-17T17:47:41.044072114Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1846, in _execute_context
+2026-04-17T17:47:41.044074074Z     return self._exec_single_context(
+2026-04-17T17:47:41.044076044Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-04-17T17:47:41.044078034Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1986, in _exec_single_context
+2026-04-17T17:47:41.044080025Z     self._handle_dbapi_exception(
+2026-04-17T17:47:41.044082005Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2355, in _handle_dbapi_exception
+2026-04-17T17:47:41.044084045Z     raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+2026-04-17T17:47:41.044086005Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+2026-04-17T17:47:41.044087985Z     self.dialect.do_execute(
+2026-04-17T17:47:41.044093346Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 941, in do_execute
+2026-04-17T17:47:41.044095355Z     cursor.execute(statement, parameters)
+2026-04-17T17:47:41.044097286Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 568, in execute
+2026-04-17T17:47:41.044099226Z     self._adapt_connection.await_(
+2026-04-17T17:47:41.044101186Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 132, in await_only
+2026-04-17T17:47:41.044103256Z     return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+2026-04-17T17:47:41.044105196Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-04-17T17:47:41.044107136Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 196, in greenlet_spawn
+2026-04-17T17:47:41.044109096Z     value = await result
+2026-04-17T17:47:41.044111056Z             ^^^^^^^^^^^^
+2026-04-17T17:47:41.044113156Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 546, in _prepare_and_execute
+2026-04-17T17:47:41.044115107Z     self._handle_exception(error)
+2026-04-17T17:47:41.044117107Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 497, in _handle_exception
+2026-04-17T17:47:41.044119157Z     self._adapt_connection._handle_exception(error)
+2026-04-17T17:47:41.044121137Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 780, in _handle_exception
+2026-04-17T17:47:41.044123097Z     raise translated_error from error
+2026-04-17T17:47:41.044125787Z sqlalchemy.exc.ProgrammingError: (sqlalchemy.dialects.postgresql.asyncpg.ProgrammingError) <class 'asyncpg.exceptions.UndefinedColumnError'>: column verification_requests.last_message_at does not exist
+2026-04-17T17:47:41.044127757Z [SQL: SELECT count(*) AS count_1 
+2026-04-17T17:47:41.044131148Z FROM (SELECT verification_requests.id AS id, verification_requests.investor_id AS investor_id, verification_requests.assigned_reviewer_id AS assigned_reviewer_id, verification_requests.investor_type AS investor_type, verification_requests.verification_method AS verification_method, verification_requests.status AS status, verification_requests.self_attestation_data AS self_attestation_data, verification_requests.denial_reason AS denial_reason, verification_requests.info_deadline AS info_deadline, verification_requests.submitted_at AS submitted_at, verification_requests.reviewed_at AS reviewed_at, verification_requests.expires_at AS expires_at, verification_requests.last_message_at AS last_message_at, verification_requests.created_at AS created_at, verification_requests.updated_at AS updated_at 
+2026-04-17T17:47:41.044133508Z FROM verification_requests 
+2026-04-17T17:47:41.044135558Z WHERE verification_requests.status IN ($1::requeststatus, $2::requeststatus, $3::requeststatus, $4::requeststatus, $5::requeststatus, $6::requeststatus, $7::requeststatus)) AS anon_1]
+2026-04-17T17:47:41.044147749Z [parameters: ('SUBMITTED', 'UNDER_REVIEW', 'ADDITIONAL_INFO_PROVIDED', 'INFO_REQUESTED', 'APPROVED', 'DENIED', 'EXPIRED')]
+2026-04-17T17:47:41.044151169Z (Background on this error at: https://sqlalche.me/e/20/f405)
