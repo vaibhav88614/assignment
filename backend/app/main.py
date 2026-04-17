@@ -69,12 +69,11 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS
-_origins = settings.get_cors_origins()
+# CORS — allow all origins for public demo
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=_origins,
-    allow_credentials=("*" not in _origins),  # credentials not allowed with wildcard origin
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -89,4 +88,9 @@ app.include_router(admin.router)
 
 @app.get("/api/health")
 async def health_check():
-    return {"status": "healthy", "app": settings.APP_NAME, "version": settings.APP_VERSION}
+    return {
+        "status": "healthy",
+        "app": settings.APP_NAME,
+        "version": settings.APP_VERSION,
+        "cors": "allow_all",
+    }
