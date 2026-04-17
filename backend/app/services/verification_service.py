@@ -264,14 +264,18 @@ async def list_requests_for_review(
     status_filter: RequestStatus | None = None,
     page: int = 1,
     page_size: int = 20,
+    include_completed: bool = False,
 ) -> tuple[list[VerificationRequest], int]:
+    active_statuses = [
+        RequestStatus.SUBMITTED,
+        RequestStatus.UNDER_REVIEW,
+        RequestStatus.ADDITIONAL_INFO_PROVIDED,
+        RequestStatus.INFO_REQUESTED,
+    ]
+    if include_completed:
+        active_statuses += [RequestStatus.APPROVED, RequestStatus.DENIED, RequestStatus.EXPIRED]
     query = select(VerificationRequest).where(
-        VerificationRequest.status.in_([
-            RequestStatus.SUBMITTED,
-            RequestStatus.UNDER_REVIEW,
-            RequestStatus.ADDITIONAL_INFO_PROVIDED,
-            RequestStatus.INFO_REQUESTED,
-        ])
+        VerificationRequest.status.in_(active_statuses)
     )
     if status_filter:
         query = query.where(VerificationRequest.status == status_filter)

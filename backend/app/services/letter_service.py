@@ -1,3 +1,4 @@
+import logging
 import os
 from datetime import datetime, timedelta, timezone
 
@@ -15,6 +16,7 @@ LETTERS_DIR = os.path.join(settings.UPLOAD_DIR, "letters")
 os.makedirs(LETTERS_DIR, exist_ok=True)
 
 jinja_env = Environment(loader=FileSystemLoader(TEMPLATE_DIR), autoescape=True)
+logger = logging.getLogger("aiv.letter")
 
 
 async def generate_letter(
@@ -53,8 +55,11 @@ async def generate_letter(
     try:
         from weasyprint import HTML
         HTML(string=html_content).write_pdf(pdf_path)
-    except ImportError:
-        # WeasyPrint not installed — save HTML as fallback
+    except Exception as e:
+        # WeasyPrint not installed or its native deps (GTK/Pango/libgobject)
+        # can't be loaded (common on Windows, raises OSError at import).
+        # Save HTML as fallback so approval still succeeds.
+        logger.warning("PDF generation failed (%s); falling back to HTML letter.", e)
         pdf_path = pdf_path.replace(".pdf", ".html")
         with open(pdf_path, "w", encoding="utf-8") as f:
             f.write(html_content)

@@ -2,12 +2,15 @@ import { useEffect, useState, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
   ArrowLeft,
-  CheckCircle,
+  CheckCircle2,
   XCircle,
   AlertCircle,
   Download,
   FileText,
   PlayCircle,
+  Mail,
+  User as UserIcon,
+  Calendar,
 } from 'lucide-react';
 import api from '../api/client';
 import StatusBadge from '../components/common/StatusBadge';
@@ -117,8 +120,14 @@ export default function ReviewDetailPage() {
     }
   };
 
-  if (loading) return <LoadingSpinner />;
-  if (!request) return <div className="p-8 text-center text-red-600">{error || 'Not found'}</div>;
+  if (loading) return <LoadingSpinner label="Loading request" />;
+  if (!request)
+    return (
+      <div className="max-w-lg mx-auto mt-16 card p-8 text-center">
+        <AlertCircle className="h-8 w-8 text-red-500 mx-auto mb-3" />
+        <p className="text-red-600 text-sm">{error || 'Request not found'}</p>
+      </div>
+    );
 
   const canReview = [
     RequestStatus.SUBMITTED,
@@ -135,15 +144,16 @@ export default function ReviewDetailPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <Link
         to="/review-queue"
-        className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"
+        className="inline-flex items-center gap-1.5 text-slate-500 hover:text-slate-900 mb-5 text-sm font-medium transition group"
       >
-        <ArrowLeft className="h-4 w-4" />
+        <ArrowLeft className="h-4 w-4 group-hover:-translate-x-0.5 transition" />
         Back to Queue
       </Link>
 
       {error && (
-        <div className="bg-red-50 text-red-700 text-sm px-4 py-3 rounded-lg mb-4">
-          {error}
+        <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 flex items-start gap-2 animate-fade-in">
+          <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+          <span>{error}</span>
         </div>
       )}
 
@@ -151,33 +161,45 @@ export default function ReviewDetailPage() {
         {/* Left: Request info + Documents */}
         <div className="lg:col-span-2 space-y-6">
           {/* Header */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">
+          <div className="card p-6">
+            <div className="flex items-start justify-between gap-4 mb-5">
+              <div className="min-w-0">
+                <h1 className="text-xl font-bold tracking-tight text-slate-900">
                   {METHOD_LABELS[request.verification_method]}
                 </h1>
-                <p className="text-sm text-gray-500 mt-1">
-                  {request.investor_name} ({request.investor_email})
-                </p>
-                <p className="text-sm text-gray-500">
-                  {request.investor_type} &middot; Submitted{' '}
-                  {formatDate(request.submitted_at)}
-                </p>
+                <div className="mt-3 space-y-1.5 text-sm text-slate-600">
+                  <div className="flex items-center gap-2">
+                    <UserIcon className="h-3.5 w-3.5 text-slate-400" />
+                    <span className="font-medium text-slate-800">
+                      {request.investor_name}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Mail className="h-3.5 w-3.5 text-slate-400" />
+                    <span>{request.investor_email}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-3.5 w-3.5 text-slate-400" />
+                    <span>
+                      {request.investor_type} &middot; Submitted{' '}
+                      {formatDate(request.submitted_at)}
+                    </span>
+                  </div>
+                </div>
               </div>
-              <StatusBadge status={request.status} />
+              <StatusBadge status={request.status} size="md" />
             </div>
 
             {/* Action Buttons */}
             {canReview && (
-              <div className="flex flex-wrap gap-3 pt-4 border-t border-gray-200">
+              <div className="flex flex-wrap gap-2.5 pt-5 border-t border-slate-100">
                 {needsClaim ? (
                   <button
                     onClick={() =>
                       handleTransition(RequestStatus.UNDER_REVIEW)
                     }
                     disabled={actionLoading}
-                    className="inline-flex items-center gap-2 bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 disabled:opacity-50 transition text-sm font-medium"
+                    className="inline-flex items-center gap-2 bg-gradient-to-b from-amber-500 to-amber-600 text-white px-4 py-2 rounded-lg hover:brightness-105 disabled:opacity-50 transition text-sm font-medium shadow-sm"
                   >
                     <PlayCircle className="h-4 w-4" />
                     Claim & Start Review
@@ -189,23 +211,23 @@ export default function ReviewDetailPage() {
                         handleTransition(RequestStatus.APPROVED)
                       }
                       disabled={actionLoading}
-                      className="inline-flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50 transition text-sm font-medium"
+                      className="inline-flex items-center gap-2 bg-gradient-to-b from-emerald-500 to-emerald-600 text-white px-4 py-2 rounded-lg hover:brightness-105 disabled:opacity-50 transition text-sm font-medium shadow-sm"
                     >
-                      <CheckCircle className="h-4 w-4" />
+                      <CheckCircle2 className="h-4 w-4" />
                       Approve
                     </button>
                     <button
-                      onClick={() => setShowDeny(true)}
+                      onClick={() => setShowDeny((v) => !v)}
                       disabled={actionLoading}
-                      className="inline-flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 disabled:opacity-50 transition text-sm font-medium"
+                      className="inline-flex items-center gap-2 bg-gradient-to-b from-red-500 to-red-600 text-white px-4 py-2 rounded-lg hover:brightness-105 disabled:opacity-50 transition text-sm font-medium shadow-sm"
                     >
                       <XCircle className="h-4 w-4" />
                       Deny
                     </button>
                     <button
-                      onClick={() => setShowRequestInfo(true)}
+                      onClick={() => setShowRequestInfo((v) => !v)}
                       disabled={actionLoading}
-                      className="inline-flex items-center gap-2 bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 disabled:opacity-50 transition text-sm font-medium"
+                      className="inline-flex items-center gap-2 bg-gradient-to-b from-orange-500 to-orange-600 text-white px-4 py-2 rounded-lg hover:brightness-105 disabled:opacity-50 transition text-sm font-medium shadow-sm"
                     >
                       <AlertCircle className="h-4 w-4" />
                       Request More Info
@@ -217,30 +239,30 @@ export default function ReviewDetailPage() {
 
             {/* Deny Dialog */}
             {showDeny && (
-              <div className="mt-4 bg-red-50 border border-red-200 rounded-lg p-4">
-                <p className="text-sm font-medium text-red-800 mb-2">
-                  Denial Reason (required):
+              <div className="mt-5 bg-red-50 border border-red-200 rounded-xl p-4 animate-fade-in">
+                <p className="text-sm font-semibold text-red-800 mb-2">
+                  Denial reason <span className="font-normal text-red-600">(required)</span>
                 </p>
                 <textarea
                   value={denialReason}
                   onChange={(e) => setDenialReason(e.target.value)}
-                  className="w-full rounded-lg border border-red-300 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500"
+                  className="w-full rounded-lg border border-red-200 bg-white px-3 py-2 text-sm placeholder:text-red-300 focus:outline-none focus:ring-2 focus:ring-red-300 focus:border-red-300"
                   rows={3}
                   placeholder="Explain why this request is being denied..."
                 />
-                <div className="flex gap-2 mt-2">
+                <div className="flex gap-2 mt-3">
                   <button
                     onClick={() =>
                       handleTransition(RequestStatus.DENIED, denialReason)
                     }
                     disabled={!denialReason.trim() || actionLoading}
-                    className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm disabled:opacity-50"
+                    className="bg-gradient-to-b from-red-500 to-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:brightness-105 disabled:opacity-50 shadow-sm"
                   >
                     Confirm Denial
                   </button>
                   <button
                     onClick={() => setShowDeny(false)}
-                    className="border border-gray-300 px-4 py-2 rounded-lg text-sm"
+                    className="border border-slate-200 bg-white text-slate-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-50"
                   >
                     Cancel
                   </button>
@@ -250,8 +272,8 @@ export default function ReviewDetailPage() {
 
             {/* Request Info Dialog */}
             {showRequestInfo && (
-              <div className="mt-4 bg-orange-50 border border-orange-200 rounded-lg p-4">
-                <p className="text-sm font-medium text-orange-800 mb-2">
+              <div className="mt-5 bg-orange-50 border border-orange-200 rounded-xl p-4 animate-fade-in">
+                <p className="text-sm font-semibold text-orange-800 mb-2">
                   What additional information is needed?
                 </p>
                 {/* Quick templates */}
@@ -273,7 +295,7 @@ export default function ReviewDetailPage() {
                     <button
                       key={tmpl.label}
                       onClick={() => setInfoMessage(tmpl.text)}
-                      className="text-xs bg-orange-100 text-orange-700 px-2.5 py-1 rounded-full hover:bg-orange-200 transition"
+                      className="text-xs bg-white border border-orange-200 text-orange-700 px-2.5 py-1 rounded-full hover:bg-orange-100 transition"
                     >
                       {tmpl.label}
                     </button>
@@ -282,19 +304,19 @@ export default function ReviewDetailPage() {
                 <textarea
                   value={infoMessage}
                   onChange={(e) => setInfoMessage(e.target.value)}
-                  className="w-full rounded-lg border border-orange-300 px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500"
+                  className="w-full rounded-lg border border-orange-200 bg-white px-3 py-2 text-sm placeholder:text-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-300 focus:border-orange-300"
                   rows={4}
                   placeholder="Describe what additional documents or information you need..."
                 />
                 {/* Deadline selector */}
-                <div className="mt-3 flex items-center gap-3">
+                <div className="mt-3 flex items-center gap-3 flex-wrap">
                   <label className="text-sm font-medium text-orange-800">
-                    Response deadline:
+                    Response deadline
                   </label>
                   <select
                     value={deadlineHours}
                     onChange={(e) => setDeadlineHours(Number(e.target.value))}
-                    className="rounded-lg border border-orange-300 px-3 py-1.5 text-sm focus:ring-2 focus:ring-orange-500"
+                    className="rounded-lg border border-orange-200 bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300"
                   >
                     <option value={24}>24 hours</option>
                     <option value={48}>48 hours</option>
@@ -303,8 +325,9 @@ export default function ReviewDetailPage() {
                     <option value={168}>7 days</option>
                   </select>
                 </div>
-                <p className="text-xs text-orange-600 mt-1">
-                  If the investor doesn't respond within {deadlineHours} hours, the request will be automatically denied.
+                <p className="text-xs text-orange-600 mt-2">
+                  If the investor doesn't respond within {deadlineHours} hours, the
+                  request will be automatically denied.
                 </p>
                 <div className="flex gap-2 mt-3">
                   <button
@@ -317,13 +340,13 @@ export default function ReviewDetailPage() {
                       )
                     }
                     disabled={!infoMessage.trim() || actionLoading}
-                    className="bg-orange-600 text-white px-4 py-2 rounded-lg text-sm disabled:opacity-50"
+                    className="bg-gradient-to-b from-orange-500 to-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:brightness-105 disabled:opacity-50 shadow-sm"
                   >
-                    Send Request ({deadlineHours}h deadline)
+                    Send Request ({deadlineHours}h)
                   </button>
                   <button
                     onClick={() => setShowRequestInfo(false)}
-                    className="border border-gray-300 px-4 py-2 rounded-lg text-sm"
+                    className="border border-slate-200 bg-white text-slate-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-50"
                   >
                     Cancel
                   </button>
@@ -333,19 +356,22 @@ export default function ReviewDetailPage() {
           </div>
 
           {/* Attestation */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          <div className="card p-6">
+            <h2 className="text-base font-semibold text-slate-900 mb-4">
               Self-Attestation Data
             </h2>
-            <div className="grid sm:grid-cols-2 gap-3">
+            <div className="grid sm:grid-cols-2 gap-2.5">
               {request.self_attestation_data &&
                 Object.entries(request.self_attestation_data).map(
                   ([key, val]) => (
-                    <div key={key} className="bg-gray-50 rounded-lg p-3">
-                      <p className="text-xs text-gray-500 uppercase tracking-wide">
+                    <div
+                      key={key}
+                      className="bg-slate-50/70 border border-slate-100 rounded-lg px-3.5 py-3"
+                    >
+                      <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
                         {key.replace(/_/g, ' ')}
                       </p>
-                      <p className="font-medium text-gray-900 mt-0.5">
+                      <p className="font-medium text-slate-900 mt-1 text-sm">
                         {String(val)}
                       </p>
                     </div>
@@ -355,25 +381,32 @@ export default function ReviewDetailPage() {
           </div>
 
           {/* Documents */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Documents ({documents.length})
-            </h2>
+          <div className="card p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-base font-semibold text-slate-900">
+                Documents
+              </h2>
+              <span className="text-xs font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
+                {documents.length}
+              </span>
+            </div>
             {documents.length === 0 ? (
-              <p className="text-sm text-gray-500">No documents uploaded.</p>
+              <p className="text-sm text-slate-500">No documents uploaded.</p>
             ) : (
               <div className="space-y-2">
                 {documents.map((doc) => (
                   <div
                     key={doc.id}
-                    className="flex items-center gap-3 bg-gray-50 rounded-lg p-3"
+                    className="flex items-center gap-3 bg-slate-50/60 hover:bg-slate-50 border border-slate-100 rounded-lg px-3.5 py-2.5 transition"
                   >
-                    <FileText className="h-5 w-5 text-gray-400 shrink-0" />
+                    <div className="h-9 w-9 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-500">
+                      <FileText className="h-4 w-4" />
+                    </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">
+                      <p className="text-sm font-medium text-slate-900 truncate">
                         {doc.original_filename}
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-slate-500">
                         {DOCUMENT_TYPE_LABELS[doc.document_type]} &middot;{' '}
                         {formatFileSize(doc.file_size)} &middot;{' '}
                         {formatDate(doc.uploaded_at)}
@@ -383,7 +416,8 @@ export default function ReviewDetailPage() {
                       href={`/api/documents/download/${doc.id}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-indigo-600 hover:text-indigo-700"
+                      className="text-indigo-600 hover:text-indigo-700 p-1.5 rounded-lg hover:bg-indigo-50 transition"
+                      title="Download"
                     >
                       <Download className="h-4 w-4" />
                     </a>
@@ -396,11 +430,14 @@ export default function ReviewDetailPage() {
 
         {/* Right: Messages */}
         <div className="lg:col-span-1">
-          <div className="bg-white rounded-xl border border-gray-200 sticky top-20">
-            <div className="p-4 border-b border-gray-200">
-              <h2 className="font-semibold text-gray-900">
+          <div className="card sticky top-20 overflow-hidden">
+            <div className="px-4 py-3.5 border-b border-slate-100 bg-slate-50/40">
+              <h2 className="font-semibold text-slate-900 text-sm">
                 Communication Thread
               </h2>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Messages and status updates between investor and reviewer
+              </p>
             </div>
             <MessageThread
               messages={messages}

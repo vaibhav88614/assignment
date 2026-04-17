@@ -1,4 +1,6 @@
 from pathlib import Path
+
+from pydantic import field_validator
 from pydantic_settings import BaseSettings
 
 
@@ -40,6 +42,19 @@ class Settings(BaseSettings):
 
     # CORS
     CORS_ORIGINS: list[str] = ["http://localhost:5173", "http://localhost:3000"]
+
+    @field_validator("DEBUG", mode="before")
+    @classmethod
+    def normalize_debug(cls, value: object) -> bool:
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, str):
+            normalized = value.strip().lower()
+            if normalized in {"true", "1", "yes", "on", "debug", "development", "dev"}:
+                return True
+            if normalized in {"false", "0", "no", "off", "release", "production", "prod"}:
+                return False
+        return bool(value)
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 

@@ -6,6 +6,7 @@ from app.database import get_db
 from app.middleware.auth import get_current_user
 from app.models.document import DocumentType
 from app.models.user import User, UserRole
+from app.models.verification_request import VerificationRequest
 from app.schemas.document import DocumentListResponse, DocumentUploadResponse
 from app.services.document_service import delete_document, list_documents, upload_document
 from app.services.storage_service import storage_service
@@ -31,6 +32,7 @@ async def list_docs(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    await _check_read_access(db, request_id, current_user)
     docs = await list_documents(db, request_id)
     return DocumentListResponse(items=docs)
 
@@ -57,9 +59,7 @@ async def download_doc(
     )
     req = req_result.scalar_one()
 
-    if current_user.role == UserRole.INVESTOR and req.investor_id != current_user.id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
-    if current_user.role == UserRole.REVIEWER and req.assigned_reviewer_id != current_user.id:
+    if not _can_read_request(req, current_user):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
 
     file_path = storage_service.get_file_path(doc.stored_filename)
@@ -77,3 +77,26 @@ async def delete_doc(
     db: AsyncSession = Depends(get_db),
 ):
     await delete_document(db, document_id, current_user)
+
+
+async def _check_read_access(db: AsyncSession, request_id: str, user: User) -> VerificationRequest:
+    from sqlalchemy import select
+    from fastapi import HTTPException, status
+
+    result = await db.execute(select(VerificationRequest).where(VerificationRequest.id == request_id))
+    req = result.scalar_one_or_none()
+    if not req:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Request not found")
+    if not _can_read_request(req, user):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
+    return req
+
+
+def _can_read_request(req: VerificationRequest, user: User) -> bool:
+    if user.role == UserRole.ADMIN:
+        return True
+    if user.role == UserRole.INVESTOR:
+        return req.investor_id == user.id
+    if user.role == UserRole.REVIEWER:
+        return req.assigned_reviewer_id in (None, user.id)
+    return False

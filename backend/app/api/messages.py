@@ -18,8 +18,7 @@ async def get_messages(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    # Check access
-    await _check_access(db, request_id, current_user)
+    await _check_access(db, request_id, current_user, write=False)
 
     result = await db.execute(
         select(Message)
@@ -55,7 +54,7 @@ async def send_message(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    await _check_access(db, request_id, current_user)
+    await _check_access(db, request_id, current_user, write=True)
 
     msg = Message(
         request_id=request_id,
@@ -78,7 +77,13 @@ async def send_message(
     )
 
 
-async def _check_access(db: AsyncSession, request_id: str, user: User) -> VerificationRequest:
+async def _check_access(
+    db: AsyncSession,
+    request_id: str,
+    user: User,
+    *,
+    write: bool,
+) -> VerificationRequest:
     result = await db.execute(
         select(VerificationRequest).where(VerificationRequest.id == request_id)
     )
@@ -88,7 +93,10 @@ async def _check_access(db: AsyncSession, request_id: str, user: User) -> Verifi
 
     if user.role == UserRole.INVESTOR and req.investor_id != user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
-    if user.role == UserRole.REVIEWER and req.assigned_reviewer_id != user.id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
+    if user.role == UserRole.REVIEWER:
+        if write and req.assigned_reviewer_id != user.id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
+        if not write and req.assigned_reviewer_id not in (None, user.id):
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
 
     return req

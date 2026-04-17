@@ -116,10 +116,13 @@ async def get_review_queue(
     status_filter: RequestStatus | None = None,
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
+    include_completed: bool = Query(False),
     current_user: User = Depends(require_role(UserRole.REVIEWER, UserRole.ADMIN)),
     db: AsyncSession = Depends(get_db),
 ):
-    items, total = await list_requests_for_review(db, current_user, status_filter, page, page_size)
+    items, total = await list_requests_for_review(
+        db, current_user, status_filter, page, page_size, include_completed=include_completed
+    )
     return VerificationRequestListResponse(items=items, total=total, page=page, page_size=page_size)
 
 
@@ -156,15 +159,33 @@ async def transition_verification_request(
             deadline=req.info_deadline,
         )
 
-    # If approved, generate letter
+    # If approved, generate letter and email the investor
     if data.new_status == RequestStatus.APPROVED:
         from app.models.user import User as UserModel
         from app.services.letter_service import generate_letter
+        from app.services.notification_service import notification_service
         from sqlalchemy import select
 
         investor_result = await db.execute(select(UserModel).where(UserModel.id == req.investor_id))
         investor = investor_result.scalar_one()
-        await generate_letter(db, req, investor)
+        letter = await generate_letter(db, req, investor)
+        await notification_service.send_request_approved(
+            investor_email=investor.email,
+            letter_number=letter.letter_number,
+        )
+
+    # If denied, email the investor with the reason
+    if data.new_status == RequestStatus.DENIED:
+        from app.models.user import User as UserModel
+        from app.services.notification_service import notification_service
+        from sqlalchemy import select
+
+        investor_result = await db.execute(select(UserModel).where(UserModel.id == req.investor_id))
+        investor = investor_result.scalar_one()
+        await notification_service.send_request_denied(
+            investor_email=investor.email,
+            reason=req.denial_reason or "No reason provided.",
+        )
 
     return req
 

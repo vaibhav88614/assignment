@@ -99,6 +99,12 @@ async def list_letters(
     )
     letters = result.scalars().all()
     now = datetime.now(timezone.utc)
+
+    def _aware(dt):
+        # SQLite strips tzinfo on read; treat stored timestamps as UTC so we
+        # can safely compare against the aware `now`.
+        return dt.replace(tzinfo=timezone.utc) if dt.tzinfo is None else dt
+
     return [
         LetterResponse(
             id=l.id,
@@ -108,7 +114,7 @@ async def list_letters(
             verification_method=l.verification_method,
             issued_at=l.issued_at,
             expires_at=l.expires_at,
-            is_valid=l.expires_at > now,
+            is_valid=_aware(l.expires_at) > now,
         )
         for l in letters
     ]

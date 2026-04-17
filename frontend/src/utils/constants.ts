@@ -28,14 +28,25 @@ export const METHOD_DESCRIPTIONS: Record<VerificationMethod, string> = {
 };
 
 export const STATUS_COLORS: Record<RequestStatus, string> = {
-  [RequestStatus.DRAFT]: 'bg-gray-100 text-gray-700',
-  [RequestStatus.SUBMITTED]: 'bg-blue-100 text-blue-700',
-  [RequestStatus.UNDER_REVIEW]: 'bg-yellow-100 text-yellow-700',
-  [RequestStatus.INFO_REQUESTED]: 'bg-orange-100 text-orange-700',
-  [RequestStatus.ADDITIONAL_INFO_PROVIDED]: 'bg-cyan-100 text-cyan-700',
-  [RequestStatus.APPROVED]: 'bg-green-100 text-green-700',
-  [RequestStatus.DENIED]: 'bg-red-100 text-red-700',
-  [RequestStatus.EXPIRED]: 'bg-gray-200 text-gray-500',
+  [RequestStatus.DRAFT]: 'bg-slate-50 text-slate-700 ring-1 ring-slate-200',
+  [RequestStatus.SUBMITTED]: 'bg-blue-50 text-blue-700 ring-1 ring-blue-200',
+  [RequestStatus.UNDER_REVIEW]: 'bg-amber-50 text-amber-700 ring-1 ring-amber-200',
+  [RequestStatus.INFO_REQUESTED]: 'bg-orange-50 text-orange-700 ring-1 ring-orange-200',
+  [RequestStatus.ADDITIONAL_INFO_PROVIDED]: 'bg-cyan-50 text-cyan-700 ring-1 ring-cyan-200',
+  [RequestStatus.APPROVED]: 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200',
+  [RequestStatus.DENIED]: 'bg-red-50 text-red-700 ring-1 ring-red-200',
+  [RequestStatus.EXPIRED]: 'bg-slate-100 text-slate-500 ring-1 ring-slate-200',
+};
+
+export const STATUS_DOTS: Record<RequestStatus, string> = {
+  [RequestStatus.DRAFT]: 'bg-slate-400',
+  [RequestStatus.SUBMITTED]: 'bg-blue-500',
+  [RequestStatus.UNDER_REVIEW]: 'bg-amber-500',
+  [RequestStatus.INFO_REQUESTED]: 'bg-orange-500',
+  [RequestStatus.ADDITIONAL_INFO_PROVIDED]: 'bg-cyan-500',
+  [RequestStatus.APPROVED]: 'bg-emerald-500',
+  [RequestStatus.DENIED]: 'bg-red-500',
+  [RequestStatus.EXPIRED]: 'bg-slate-400',
 };
 
 export const STATUS_LABELS: Record<RequestStatus, string> = {

@@ -9,6 +9,16 @@ interface MessageThreadProps {
   sending?: boolean;
 }
 
+function formatTime(iso: string): string {
+  const d = new Date(iso);
+  return d.toLocaleString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+}
+
 export default function MessageThread({
   messages,
   onSend,
@@ -31,65 +41,79 @@ export default function MessageThread({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto space-y-3 p-4 max-h-96">
+      <div className="flex-1 overflow-y-auto space-y-3 p-4 max-h-[28rem]">
         {messages.length === 0 && (
-          <p className="text-sm text-gray-400 text-center py-8">
+          <p className="text-sm text-slate-400 text-center py-10">
             No messages yet. Start the conversation.
           </p>
         )}
-        {messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`flex ${
-              msg.is_system_message
-                ? 'justify-center'
-                : msg.sender_id === user?.id
-                ? 'justify-end'
-                : 'justify-start'
-            }`}
-          >
-            {msg.is_system_message ? (
-              <div className="bg-gray-100 text-gray-500 text-xs px-3 py-1.5 rounded-full max-w-md">
-                {msg.content}
+        {messages.map((msg) => {
+          const mine = msg.sender_id === user?.id;
+          if (msg.is_system_message) {
+            return (
+              <div key={msg.id} className="flex justify-center">
+                <div className="bg-slate-100 text-slate-500 text-[11px] px-3 py-1 rounded-full max-w-md">
+                  {msg.content}
+                </div>
               </div>
-            ) : (
+            );
+          }
+          return (
+            <div
+              key={msg.id}
+              className={`flex ${mine ? 'justify-end' : 'justify-start'}`}
+            >
               <div
-                className={`max-w-xs lg:max-w-md px-4 py-2 rounded-2xl ${
-                  msg.sender_id === user?.id
-                    ? 'bg-indigo-600 text-white'
-                    : 'bg-gray-100 text-gray-900'
+                className={`max-w-xs lg:max-w-sm px-3.5 py-2.5 rounded-2xl shadow-sm ${
+                  mine
+                    ? 'bg-gradient-to-b from-indigo-500 to-indigo-600 text-white rounded-br-md'
+                    : 'bg-white border border-slate-200 text-slate-900 rounded-bl-md'
                 }`}
               >
-                <p className="text-xs font-medium mb-1 opacity-70">
-                  {msg.sender_name} ({msg.sender_role})
+                <p
+                  className={`text-[11px] font-semibold mb-0.5 ${
+                    mine ? 'text-white/80' : 'text-slate-500'
+                  }`}
+                >
+                  {msg.sender_name}{' '}
+                  <span className="font-normal opacity-80">
+                    ({msg.sender_role})
+                  </span>
                 </p>
-                <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                <p className="text-xs mt-1 opacity-50">
-                  {new Date(msg.created_at).toLocaleString()}
+                <p className="text-sm whitespace-pre-wrap leading-relaxed">
+                  {msg.content}
+                </p>
+                <p
+                  className={`text-[10px] mt-1 ${
+                    mine ? 'text-white/60' : 'text-slate-400'
+                  }`}
+                >
+                  {formatTime(msg.created_at)}
                 </p>
               </div>
-            )}
-          </div>
-        ))}
+            </div>
+          );
+        })}
         <div ref={bottomRef} />
       </div>
 
       <form
         onSubmit={handleSubmit}
-        className="border-t border-gray-200 p-3 flex gap-2"
+        className="border-t border-slate-100 p-3 flex gap-2 bg-white"
       >
         <input
           type="text"
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder="Type a message..."
-          className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          className="flex-1 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400 focus:bg-white transition"
           disabled={sending}
         />
         <button
           type="submit"
           disabled={sending || !content.trim()}
-          className="bg-indigo-600 text-white p-2 rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition"
+          className="bg-gradient-to-b from-indigo-500 to-indigo-700 text-white p-2 rounded-lg hover:brightness-105 disabled:opacity-50 transition shadow-sm"
+          aria-label="Send message"
         >
           <Send className="h-4 w-4" />
         </button>

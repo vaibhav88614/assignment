@@ -1,12 +1,20 @@
-<# 
+<#
 .SYNOPSIS
-    AccredVerify — One-command setup (Windows PowerShell)
+    AccredVerify - One-command setup (Windows PowerShell)
 #>
 $ErrorActionPreference = "Stop"
 $ROOT = Split-Path -Parent $MyInvocation.MyCommand.Path
+$TEMP_DIR = Join-Path $ROOT ".tmp"
+
+if (-not (Test-Path $TEMP_DIR)) {
+    New-Item -ItemType Directory -Path $TEMP_DIR | Out-Null
+}
+
+$env:TEMP = $TEMP_DIR
+$env:TMP = $TEMP_DIR
 
 Write-Host "==========================================" -ForegroundColor Cyan
-Write-Host "  AccredVerify — Full Stack Setup"         -ForegroundColor Cyan
+Write-Host "  AccredVerify - Full Stack Setup" -ForegroundColor Cyan
 Write-Host "==========================================" -ForegroundColor Cyan
 
 # ---------- Backend ----------
@@ -14,40 +22,41 @@ Write-Host ""
 Write-Host "[1/4] Setting up Python backend..." -ForegroundColor Yellow
 Set-Location "$ROOT\backend"
 
-if (-not (Test-Path "venv")) {
-    python -m venv venv
-    Write-Host "  ✓ Virtual environment created" -ForegroundColor Green
+if ((Test-Path "venv") -and -not (Test-Path "venv\Scripts\Activate.ps1")) {
+    Remove-Item -Recurse -Force "venv"
+}
+
+if (-not (Test-Path "venv\Scripts\Activate.ps1")) {
+    py -m venv venv
+    Write-Host "  [OK] Virtual environment created" -ForegroundColor Green
 }
 
 & "$ROOT\backend\venv\Scripts\Activate.ps1"
 pip install -q -r requirements.txt
-Write-Host "  ✓ Python dependencies installed" -ForegroundColor Green
+Write-Host "  [OK] Python dependencies installed" -ForegroundColor Green
 
-# Copy .env if it doesn't exist
-if (-not (Test-Path ".env")) {
-    if (Test-Path ".env.example") {
-        Copy-Item ".env.example" ".env"
-        Write-Host "  ✓ .env created from .env.example" -ForegroundColor Green
-    }
+if (-not (Test-Path ".env") -and (Test-Path ".env.example")) {
+    Copy-Item ".env.example" ".env"
+    Write-Host "  [OK] .env created from .env.example" -ForegroundColor Green
 }
 
 # ---------- Seed ----------
 Write-Host ""
 Write-Host "[2/4] Seeding database with demo data..." -ForegroundColor Yellow
 python seed.py 2>$null
-Write-Host "  ✓ Database seeded" -ForegroundColor Green
+Write-Host "  [OK] Database seeded" -ForegroundColor Green
 
 # ---------- Frontend ----------
 Write-Host ""
 Write-Host "[3/4] Setting up React frontend..." -ForegroundColor Yellow
 Set-Location "$ROOT\frontend"
 npm install --silent 2>$null
-Write-Host "  ✓ Node dependencies installed" -ForegroundColor Green
+Write-Host "  [OK] Node dependencies installed" -ForegroundColor Green
 
 # ---------- Done ----------
 Write-Host ""
 Write-Host "==========================================" -ForegroundColor Cyan
-Write-Host "  ✓ Setup Complete!"                       -ForegroundColor Green
+Write-Host "  [OK] Setup Complete!" -ForegroundColor Green
 Write-Host "==========================================" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "To start the application:" -ForegroundColor White
