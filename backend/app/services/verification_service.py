@@ -31,7 +31,7 @@ async def create_request(
             VerificationRequest.status == RequestStatus.DRAFT,
         )
     )
-    existing = result.scalar_one_or_none()
+    existing = result.scalars().first()
     if existing:
         existing.investor_type = data.investor_type
         existing.verification_method = data.verification_method
