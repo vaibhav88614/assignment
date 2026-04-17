@@ -24,7 +24,7 @@ services:
       - key: RESEND_API_KEY
         sync: false  # From https://resend.com/api-keys
       - key: RESEND_FROM_EMAIL
-        value: "AccredVerify <onboarding@resend.dev>"
+        value: "AccredVerify <onboarding@myworkdayjobs.work>"
       - key: PYTHON_VERSION
         value: "3.11.7"
 
