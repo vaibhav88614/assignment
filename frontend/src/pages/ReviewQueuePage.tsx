@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Filter, ChevronRight, Inbox, CheckCircle2, Clock } from 'lucide-react';
+import { Filter, ChevronRight, Inbox, CheckCircle2, Clock, XCircle, AlertTriangle } from 'lucide-react';
 import api from '../api/client';
 import StatusBadge from '../components/common/StatusBadge';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -11,7 +11,7 @@ import {
 } from '../types';
 import { METHOD_LABELS, formatDate } from '../utils/constants';
 
-type QueueTab = 'active' | 'completed';
+type QueueTab = 'active' | 'accepted' | 'rejected';
 
 export default function ReviewQueuePage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -32,17 +32,17 @@ export default function ReviewQueuePage() {
       setLoading(true);
       try {
         const params = new URLSearchParams();
-        if (tab === 'completed') {
+        if (tab === 'accepted' || tab === 'rejected') {
           params.set('include_completed', 'true');
         }
         if (statusFilter && tab === 'active') params.set('status_filter', statusFilter);
         const { data } = await api.get<VerificationRequestList>(
           `/verification/review-queue?${params.toString()}`
         );
-        if (tab === 'completed') {
-          setRequests(data.items.filter((r) =>
-            [RequestStatus.APPROVED, RequestStatus.DENIED, RequestStatus.EXPIRED].includes(r.status)
-          ));
+        if (tab === 'accepted') {
+          setRequests(data.items.filter((r) => r.status === RequestStatus.APPROVED));
+        } else if (tab === 'rejected') {
+          setRequests(data.items.filter((r) => r.status === RequestStatus.DENIED));
         } else {
           setRequests(data.items);
         }
@@ -63,10 +63,10 @@ export default function ReviewQueuePage() {
             Review Queue
           </h1>
           <p className="text-slate-500 mt-1.5 text-sm">
-            {tab === 'active' ? 'Verification requests pending reviewer action.' : 'Completed verification requests.'}
+            {tab === 'active' ? 'Verification requests pending reviewer action.' : tab === 'accepted' ? 'Approved verification requests.' : 'Denied verification requests.'}
           </p>
         </div>
-        {tab === 'active' && (
+      {tab === 'active' && (
           <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2 shadow-sm">
             <Filter className="h-4 w-4 text-slate-400" />
             <select
@@ -88,7 +88,8 @@ export default function ReviewQueuePage() {
       <div className="flex gap-1 mb-6 bg-slate-100 p-1 rounded-lg w-fit">
         {([
           { key: 'active' as QueueTab, label: 'Active', icon: Clock },
-          { key: 'completed' as QueueTab, label: 'Completed', icon: CheckCircle2 },
+          { key: 'accepted' as QueueTab, label: 'Accepted', icon: CheckCircle2 },
+          { key: 'rejected' as QueueTab, label: 'Rejected', icon: XCircle },
         ]).map(({ key, label, icon: Icon }) => (
           <button
             key={key}
@@ -113,10 +114,10 @@ export default function ReviewQueuePage() {
             <Inbox className="h-7 w-7 text-slate-400" />
           </div>
           <h3 className="text-lg font-semibold text-slate-900 mb-1">
-            {tab === 'completed' ? 'No completed requests' : 'Queue is empty'}
+            {tab === 'accepted' ? 'No accepted requests' : tab === 'rejected' ? 'No rejected requests' : 'Queue is empty'}
           </h3>
           <p className="text-sm text-slate-500">
-            {tab === 'completed' ? 'Approved and denied requests will appear here.' : 'No requests matching this filter.'}
+            {tab === 'accepted' ? 'Approved requests will appear here.' : tab === 'rejected' ? 'Denied requests will appear here.' : 'No requests matching this filter.'}
           </p>
         </div>
       ) : (
@@ -131,10 +132,10 @@ export default function ReviewQueuePage() {
                   Type
                 </th>
                 <th className="px-6 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-                  {tab === 'completed' ? 'Outcome' : 'Status'}
+                  {tab !== 'active' ? 'Outcome' : 'Status'}
                 </th>
                 <th className="px-6 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-                  {tab === 'completed' ? 'Decision Date' : 'Submitted'}
+                  {tab !== 'active' ? 'Decision Date' : 'Submitted'}
                 </th>
                 <th className="px-6 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
                   Reviewer
@@ -155,10 +156,18 @@ export default function ReviewQueuePage() {
                     {req.investor_type}
                   </td>
                   <td className="px-6 py-4">
-                    <StatusBadge status={req.status} />
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <StatusBadge status={req.status} />
+                      {req.status === RequestStatus.DENIED && req.denial_reason?.startsWith('Automatically denied') && (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-semibold bg-red-50 text-red-700 ring-1 ring-red-200 px-1.5 py-0.5 rounded-full">
+                          <AlertTriangle className="h-3 w-3" />
+                          Missed deadline
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td className="px-6 py-4 text-sm text-slate-500">
-                    {tab === 'completed' ? formatDate(req.reviewed_at) : formatDate(req.submitted_at)}
+                    {tab !== 'active' ? formatDate(req.reviewed_at) : formatDate(req.submitted_at)}
                   </td>
                   <td className="px-6 py-4 text-sm">
                     {req.assigned_reviewer_id ? (

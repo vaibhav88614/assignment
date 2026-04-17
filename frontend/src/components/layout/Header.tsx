@@ -92,7 +92,7 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <Link
-            to="/"
+            to={user ? '/dashboard' : '/'}
             className="flex items-center gap-2.5 group"
             aria-label="AccredVerify home"
           >
@@ -215,7 +215,7 @@ export default function Header() {
                     )}
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <Link to="/dashboard" className="flex items-center gap-2 hover:opacity-80 transition">
                     <div className="h-8 w-8 rounded-full bg-gradient-to-br from-slate-200 to-slate-300 text-slate-700 flex items-center justify-center text-xs font-semibold ring-1 ring-slate-300">
                       {user.first_name?.[0]}
                       {user.last_name?.[0]}
@@ -233,7 +233,7 @@ export default function Header() {
                         {user.role}
                       </span>
                     </div>
-                  </div>
+                  </Link>
                   <button
                     onClick={handleLogout}
                     className="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 transition"

@@ -16,6 +16,7 @@ import {
   ArrowUpRight,
   Sparkles,
   Mail,
+  AlertTriangle,
 } from 'lucide-react';
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
@@ -36,7 +37,11 @@ function hasUnread(req: VerificationRequest): boolean {
   return new Date(req.last_message_at).getTime() > new Date(lastSeen).getTime();
 }
 
-type ReviewerFilter = 'all' | 'unclaimed' | 'mine' | 'completed';
+function isDeadlineDenial(reason: string | null): boolean {
+  return !!reason && reason.startsWith('Automatically denied');
+}
+
+type ReviewerFilter = 'all' | 'unclaimed' | 'mine' | 'accepted' | 'rejected';
 
 function relativeTime(iso: string | null): string {
   if (!iso) return '—';
@@ -149,14 +154,10 @@ export default function DashboardPage() {
         );
       case 'mine':
         return requests.filter((r) => r.assigned_reviewer_id === user?.id);
-      case 'completed':
-        return requests.filter((r) =>
-          [
-            RequestStatus.APPROVED,
-            RequestStatus.DENIED,
-            RequestStatus.EXPIRED,
-          ].includes(r.status)
-        );
+      case 'accepted':
+        return requests.filter((r) => r.status === RequestStatus.APPROVED);
+      case 'rejected':
+        return requests.filter((r) => r.status === RequestStatus.DENIED);
       case 'all':
       default:
         return requests;
@@ -168,6 +169,11 @@ export default function DashboardPage() {
   const approvalRate =
     stats.approved + stats.denied > 0
       ? Math.round((stats.approved / (stats.approved + stats.denied)) * 100)
+      : 0;
+
+  const denialRate =
+    stats.approved + stats.denied > 0
+      ? Math.round((stats.denied / (stats.approved + stats.denied)) * 100)
       : 0;
 
   // Filtered investor requests
@@ -280,7 +286,7 @@ export default function DashboardPage() {
       {isReviewer ? (
         <>
           {/* Reviewer KPI row */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
             <ReviewerKpi
               label="Unclaimed"
               value={stats.unclaimed}
@@ -315,8 +321,17 @@ export default function DashboardPage() {
               icon={CheckCircle2}
               accent="from-emerald-50 to-white"
               iconBg="bg-emerald-100 text-emerald-600"
-              hint={`${stats.approved} approved · ${stats.denied} denied`}
-              onClick={() => setFilter('completed')}
+              hint={`${stats.approved} approved`}
+              onClick={() => setFilter('accepted')}
+            />
+            <ReviewerKpi
+              label="Denial rate"
+              value={`${denialRate}%`}
+              icon={XCircle}
+              accent="from-red-50 to-white"
+              iconBg="bg-red-100 text-red-600"
+              hint={`${stats.denied} denied`}
+              onClick={() => setFilter('rejected')}
             />
           </div>
 
@@ -343,11 +358,8 @@ export default function DashboardPage() {
                 { key: 'all', label: 'All', count: stats.total },
                 { key: 'unclaimed', label: 'Unclaimed', count: stats.unclaimed },
                 { key: 'mine', label: 'My assignments', count: stats.mine },
-                {
-                  key: 'completed',
-                  label: 'Completed',
-                  count: stats.approved + stats.denied,
-                },
+                { key: 'accepted', label: 'Accepted', count: stats.approved },
+                { key: 'rejected', label: 'Rejected', count: stats.denied },
               ] as const
             ).map(({ key, label, count }) => {
               const active = filter === key;
@@ -379,7 +391,6 @@ export default function DashboardPage() {
           {/* List */}
           <ReviewerList
             requests={filteredRequests}
-            currentUserId={user?.id}
             filter={filter}
           />
         </>
@@ -472,6 +483,12 @@ export default function DashboardPage() {
                             {METHOD_LABELS[req.verification_method]}
                           </h3>
                           <StatusBadge status={req.status} />
+                          {req.status === RequestStatus.DENIED && isDeadlineDenial(req.denial_reason) && (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-semibold bg-red-50 text-red-700 ring-1 ring-red-200 px-1.5 py-0.5 rounded-full">
+                              <AlertTriangle className="h-3 w-3" />
+                              Rejected due to missing the document deadline
+                            </span>
+                          )}
                           {unread && (
                             <span className="inline-flex items-center gap-1 text-[10px] font-semibold bg-indigo-100 text-indigo-700 ring-1 ring-indigo-200 px-1.5 py-0.5 rounded-full">
                               <Mail className="h-3 w-3" />
@@ -487,9 +504,15 @@ export default function DashboardPage() {
                         </p>
                       </div>
                       <div className="flex items-center gap-4 text-xs text-slate-500">
-                        {req.expires_at && (
+                        {req.status === RequestStatus.APPROVED && req.expires_at && (
                           <span className="whitespace-nowrap">
                             Expires {formatDate(req.expires_at)}
+                          </span>
+                        )}
+                        {req.status === RequestStatus.INFO_REQUESTED && req.info_deadline && (
+                          <span className="inline-flex items-center gap-1 whitespace-nowrap text-orange-600 font-medium">
+                            <Clock className="h-3 w-3" />
+                            Deadline {formatDate(req.info_deadline)}
                           </span>
                         )}
                         {unread && (
@@ -597,11 +620,9 @@ function SummaryStat({
 
 function ReviewerList({
   requests,
-  currentUserId,
   filter,
 }: {
   requests: VerificationRequest[];
-  currentUserId?: string;
   filter: ReviewerFilter;
 }) {
   if (requests.length === 0) {
@@ -618,9 +639,13 @@ function ReviewerList({
         title: 'No requests assigned to you',
         body: 'Claim a request from the queue to see it here.',
       },
-      completed: {
-        title: 'No completed requests yet',
-        body: 'Approved and denied requests will show here.',
+      accepted: {
+        title: 'No accepted requests yet',
+        body: 'Approved requests will show here.',
+      },
+      rejected: {
+        title: 'No rejected requests yet',
+        body: 'Denied requests will show here.',
       },
     };
     const copy = emptyCopy[filter];
@@ -640,11 +665,10 @@ function ReviewerList({
   return (
     <div className="space-y-2.5">
       {requests.map((req) => {
-        const mine = req.assigned_reviewer_id === currentUserId;
         const unclaimed =
           !req.assigned_reviewer_id && req.status === RequestStatus.SUBMITTED;
         const pendingDays = daysBetween(req.submitted_at);
-        const isStale = pendingDays !== null && pendingDays >= 3;
+        const isStale = pendingDays !== null && pendingDays >= 3 && req.status === RequestStatus.INFO_REQUESTED;
         const unread = hasUnread(req);
         const isCompleted = [RequestStatus.APPROVED, RequestStatus.DENIED, RequestStatus.EXPIRED].includes(req.status);
 
@@ -661,10 +685,10 @@ function ReviewerList({
                     {METHOD_LABELS[req.verification_method]}
                   </h3>
                   <StatusBadge status={req.status} />
-                  {mine && (
-                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold bg-indigo-50 text-indigo-700 ring-1 ring-indigo-200 px-1.5 py-0.5 rounded-full">
-                      <UserCheck className="h-3 w-3" />
-                      Mine
+                  {req.status === RequestStatus.DENIED && isDeadlineDenial(req.denial_reason) && (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold bg-red-50 text-red-700 ring-1 ring-red-200 px-1.5 py-0.5 rounded-full">
+                      <AlertTriangle className="h-3 w-3" />
+                      Rejected due to missing the document deadline
                     </span>
                   )}
                   {unclaimed && (

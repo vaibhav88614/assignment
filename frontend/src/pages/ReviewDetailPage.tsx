@@ -5,6 +5,7 @@ import {
   CheckCircle2,
   XCircle,
   AlertCircle,
+  AlertTriangle,
   Download,
   FileText,
   PlayCircle,
@@ -263,6 +264,20 @@ export default function ReviewDetailPage() {
             <div className="mt-5 pt-5 border-t border-slate-100">
               <StatusStepper status={request.status} />
             </div>
+
+            {/* Denial reason (if denied) */}
+            {request.status === RequestStatus.DENIED && request.denial_reason && (
+              <div className="mt-4 bg-red-50 border border-red-200 rounded-lg p-4">
+                {request.denial_reason.startsWith('Automatically denied') && (
+                  <div className="inline-flex items-center gap-1.5 mb-2 text-xs font-semibold bg-red-100 text-red-800 ring-1 ring-red-200 px-2 py-1 rounded-full">
+                    <AlertTriangle className="h-3.5 w-3.5" />
+                    Rejected due to missing the document deadline
+                  </div>
+                )}
+                <p className="text-sm font-medium text-red-800">Denial Reason:</p>
+                <p className="text-sm text-red-700 mt-1">{request.denial_reason}</p>
+              </div>
+            )}
 
             {/* Action Buttons */}
             {canReview && (
