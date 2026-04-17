@@ -100,10 +100,12 @@ async def list_letters(
     letters = result.scalars().all()
     now = datetime.now(timezone.utc)
 
-    def _aware(dt):
-        # SQLite strips tzinfo on read; treat stored timestamps as UTC so we
-        # can safely compare against the aware `now`.
-        return dt.replace(tzinfo=timezone.utc) if dt.tzinfo is None else dt
+    def _ensure_utc(dt: datetime) -> datetime:
+        """Ensure a datetime is timezone-aware (UTC). SQLite strips tzinfo;
+        PostgreSQL preserves it. This handles both transparently."""
+        if dt.tzinfo is None:
+            return dt.replace(tzinfo=timezone.utc)
+        return dt
 
     return [
         LetterResponse(
@@ -114,7 +116,7 @@ async def list_letters(
             verification_method=l.verification_method,
             issued_at=l.issued_at,
             expires_at=l.expires_at,
-            is_valid=_aware(l.expires_at) > now,
+            is_valid=_ensure_utc(l.expires_at) > now,
         )
         for l in letters
     ]
@@ -128,11 +130,18 @@ async def download_letter(
 ):
     import os
     from fastapi import HTTPException, status
+    from fastapi.responses import RedirectResponse
+    from app.services.storage_service import storage_service
 
     result = await db.execute(select(VerificationLetter).where(VerificationLetter.id == letter_id))
     letter = result.scalar_one_or_none()
     if not letter:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Letter not found")
+
+    # Cloud-stored letters: redirect to Cloudinary URL
+    cloud_url = storage_service.get_download_url(letter.pdf_path)
+    if cloud_url:
+        return RedirectResponse(url=cloud_url)
 
     if not os.path.isfile(letter.pdf_path):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Letter file not found")

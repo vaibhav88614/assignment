@@ -247,16 +247,10 @@ export default function RequestDetailPage() {
   };
 
   const handleDownloadLetter = async () => {
-    if (!request?.has_letter) return;
+    if (!request?.has_letter || !request?.letter_id) return;
     try {
-      // Get the letter info first
-      const { data: detail } = await api.get<VerificationRequestDetail>(
-        `/verification/requests/${id}`
-      );
-      if (detail.has_letter) {
-        // Use admin letters endpoint to list and find ours
-        window.open(`/api/admin/letters/${id}/download`, '_blank');
-      }
+      const baseUrl = api.defaults.baseURL || '/api';
+      window.open(`${baseUrl}/admin/letters/${request.letter_id}/download`, '_blank');
     } catch {
       setError('Failed to download letter');
     }

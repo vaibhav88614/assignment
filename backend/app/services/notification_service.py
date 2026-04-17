@@ -7,7 +7,9 @@ logger = logging.getLogger("aiv.notifications")
 
 
 class NotificationService:
-    """Email notification service. In dev mode, logs to console."""
+    """Email notification service.
+    Priority: Resend API → SMTP → console logging (dev).
+    """
 
     async def send_request_submitted(self, investor_email: str, request_id: str) -> None:
         await self._send(
@@ -76,28 +78,71 @@ class NotificationService:
         )
 
     async def _send(self, to: str, subject: str, body: str) -> None:
-        if not settings.SMTP_HOST:
-            logger.info(
-                "EMAIL (dev console):\n  To: %s\n  Subject: %s\n  Body: %s\n",
-                to,
-                subject,
-                body,
-            )
+        # 1. Resend API (preferred for production)
+        if settings.RESEND_API_KEY:
+            await self._send_resend(to, subject, body)
             return
 
-        # Production SMTP would go here
+        # 2. Legacy SMTP
+        if settings.SMTP_HOST:
+            await self._send_smtp(to, subject, body)
+            return
+
+        # 3. Dev console fallback
+        logger.info(
+            "EMAIL (dev console):\n  To: %s\n  Subject: %s\n  Body: %s\n",
+            to,
+            subject,
+            body,
+        )
+
+    async def _send_resend(self, to: str, subject: str, body: str) -> None:
+        """Send email via Resend API (https://resend.com)."""
+        import httpx
+
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.post(
+                    "https://api.resend.com/emails",
+                    headers={
+                        "Authorization": f"Bearer {settings.RESEND_API_KEY}",
+                        "Content-Type": "application/json",
+                    },
+                    json={
+                        "from": settings.RESEND_FROM_EMAIL,
+                        "to": [to],
+                        "subject": subject,
+                        "text": body,
+                    },
+                    timeout=10.0,
+                )
+                if response.status_code in (200, 201):
+                    logger.info("Resend email sent to %s (subject: %s)", to, subject)
+                else:
+                    logger.error(
+                        "Resend API error %d: %s", response.status_code, response.text
+                    )
+        except Exception as e:
+            logger.error("Failed to send email via Resend: %s", e)
+
+    async def _send_smtp(self, to: str, subject: str, body: str) -> None:
+        """Send email via legacy SMTP."""
         import smtplib
         from email.mime.text import MIMEText
 
-        msg = MIMEText(body)
-        msg["Subject"] = subject
-        msg["From"] = settings.SMTP_FROM_EMAIL
-        msg["To"] = to
+        try:
+            msg = MIMEText(body)
+            msg["Subject"] = subject
+            msg["From"] = settings.SMTP_FROM_EMAIL
+            msg["To"] = to
 
-        with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT) as server:
-            server.starttls()
-            server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
-            server.send_message(msg)
+            with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT) as server:
+                server.starttls()
+                server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
+                server.send_message(msg)
+            logger.info("SMTP email sent to %s (subject: %s)", to, subject)
+        except Exception as e:
+            logger.error("Failed to send email via SMTP: %s", e)
 
 
 notification_service = NotificationService()

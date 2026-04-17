@@ -10,10 +10,9 @@ from app.config import settings
 from app.models.user import User
 from app.models.verification_letter import VerificationLetter
 from app.models.verification_request import VerificationRequest
+from app.services.storage_service import storage_service
 
 TEMPLATE_DIR = os.path.join(os.path.dirname(__file__), "..", "templates")
-LETTERS_DIR = os.path.join(settings.UPLOAD_DIR, "letters")
-os.makedirs(LETTERS_DIR, exist_ok=True)
 
 jinja_env = Environment(loader=FileSystemLoader(TEMPLATE_DIR), autoescape=True)
 logger = logging.getLogger("aiv.letter")
@@ -24,7 +23,9 @@ async def generate_letter(
 ) -> VerificationLetter:
     """Generate a verification letter PDF for an approved request."""
     issued_at = datetime.now(timezone.utc)
-    expires_at = issued_at + timedelta(days=settings.LETTER_VALIDITY_DAYS)
+    # Use the request's expires_at (set during approval) for consistency;
+    # fall back to computing from issued_at if not set.
+    expires_at = request.expires_at or (issued_at + timedelta(days=settings.LETTER_VALIDITY_DAYS))
 
     # Get next sequence number
     result = await db.execute(select(func.max(VerificationLetter.sequence_num)))
@@ -50,19 +51,18 @@ async def generate_letter(
 
     # Generate PDF
     pdf_filename = f"letter_{letter_number.replace('-', '_')}.pdf"
-    pdf_path = os.path.join(LETTERS_DIR, pdf_filename)
 
     try:
         from weasyprint import HTML
-        HTML(string=html_content).write_pdf(pdf_path)
+        pdf_bytes = HTML(string=html_content).write_pdf()
+        stored_path = await storage_service.save_letter(pdf_bytes, pdf_filename, is_pdf=True)
     except Exception as e:
         # WeasyPrint not installed or its native deps (GTK/Pango/libgobject)
         # can't be loaded (common on Windows, raises OSError at import).
         # Save HTML as fallback so approval still succeeds.
         logger.warning("PDF generation failed (%s); falling back to HTML letter.", e)
-        pdf_path = pdf_path.replace(".pdf", ".html")
-        with open(pdf_path, "w", encoding="utf-8") as f:
-            f.write(html_content)
+        html_filename = pdf_filename.replace(".pdf", ".html")
+        stored_path = await storage_service.save_letter(html_content, html_filename, is_pdf=False)
 
     letter = VerificationLetter(
         request_id=request.id,
@@ -72,7 +72,7 @@ async def generate_letter(
         verification_method=request.verification_method.value,
         issued_at=issued_at,
         expires_at=expires_at,
-        pdf_path=pdf_path,
+        pdf_path=stored_path,
         letter_html=html_content,
     )
     db.add(letter)

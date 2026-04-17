@@ -63,6 +63,7 @@ class VerificationRequestDetail(VerificationRequestResponse):
     document_count: int = 0
     message_count: int = 0
     has_letter: bool = False
+    letter_id: str | None = None
 
 
 class VerificationRequestListResponse(BaseModel):

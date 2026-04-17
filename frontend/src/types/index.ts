@@ -80,6 +80,7 @@ export interface VerificationRequestDetail extends VerificationRequest {
   document_count: number;
   message_count: number;
   has_letter: boolean;
+  letter_id: string | null;
 }
 
 export interface VerificationRequestList {

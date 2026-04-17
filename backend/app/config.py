@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     APP_VERSION: str = "1.0.0"
     DEBUG: bool = True
 
-    # Database
+    # Database (SQLite for local dev, PostgreSQL for production)
     DATABASE_URL: str = f"sqlite+aiosqlite:///{Path(__file__).resolve().parent.parent / 'aiv.db'}"
 
     # JWT
@@ -27,7 +27,15 @@ class Settings(BaseSettings):
         "image/png",
     ]
 
-    # SMTP (console in dev)
+    # Cloudinary (set CLOUDINARY_URL to enable cloud storage)
+    # Format: cloudinary://API_KEY:API_SECRET@CLOUD_NAME
+    CLOUDINARY_URL: str = ""
+
+    # Email via Resend (set RESEND_API_KEY to enable; leave empty for console logging)
+    RESEND_API_KEY: str = ""
+    RESEND_FROM_EMAIL: str = "AccredVerify <noreply@aiv-verify.com>"
+
+    # Legacy SMTP (fallback if RESEND_API_KEY is empty and SMTP_HOST is set)
     SMTP_HOST: str = ""
     SMTP_PORT: int = 587
     SMTP_USER: str = ""

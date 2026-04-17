@@ -32,11 +32,18 @@ export default function MessageThread({
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  const [sendError, setSendError] = useState<string | null>(null);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!content.trim()) return;
-    await onSend(content.trim());
-    setContent('');
+    try {
+      setSendError(null);
+      await onSend(content.trim());
+      setContent('');
+    } catch {
+      setSendError('Failed to send message. Please try again.');
+    }
   };
 
   return (
@@ -96,6 +103,10 @@ export default function MessageThread({
         })}
         <div ref={bottomRef} />
       </div>
+
+      {sendError && (
+        <div className="mx-3 mt-2 text-xs text-red-600 bg-red-50 rounded px-2 py-1">{sendError}</div>
+      )}
 
       <form
         onSubmit={handleSubmit}

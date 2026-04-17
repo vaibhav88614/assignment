@@ -1,7 +1,11 @@
 import axios from 'axios';
 
+// In production (Vercel), VITE_API_URL points to the Render backend.
+// In development, Vite's proxy handles /api → localhost:8000.
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: API_BASE_URL,
   headers: { 'Content-Type': 'application/json' },
 });
 
@@ -24,7 +28,7 @@ api.interceptors.response.use(
       const refreshToken = localStorage.getItem('refresh_token');
       if (refreshToken) {
         try {
-          const { data } = await axios.post('/api/auth/refresh', {
+          const { data } = await axios.post(`${API_BASE_URL}/auth/refresh`, {
             refresh_token: refreshToken,
           });
           localStorage.setItem('access_token', data.access_token);

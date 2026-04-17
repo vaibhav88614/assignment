@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, UploadFile, File, Form
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
@@ -62,6 +62,11 @@ async def download_doc(
     if not _can_read_request(req, current_user):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
 
+    # Cloud-stored files: redirect to Cloudinary URL
+    cloud_url = storage_service.get_download_url(doc.stored_filename)
+    if cloud_url:
+        return RedirectResponse(url=cloud_url)
+
     file_path = storage_service.get_file_path(doc.stored_filename)
     return FileResponse(
         path=file_path,
@@ -98,5 +103,9 @@ def _can_read_request(req: VerificationRequest, user: User) -> bool:
     if user.role == UserRole.INVESTOR:
         return req.investor_id == user.id
     if user.role == UserRole.REVIEWER:
-        return req.assigned_reviewer_id in (None, user.id)
+        # Assigned reviewer can always access; unassigned reviewers can only
+        # browse submitted requests (review queue visibility)
+        if req.assigned_reviewer_id == user.id:
+            return True
+        return req.assigned_reviewer_id is None and req.status.value == "SUBMITTED"
     return False

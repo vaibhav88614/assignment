@@ -88,6 +88,7 @@ async def get_request_detail(db: AsyncSession, request_id: str) -> VerificationR
         document_count=len(req.documents) if req.documents else 0,
         message_count=msg_count,
         has_letter=req.letter is not None,
+        letter_id=req.letter.id if req.letter else None,
     )
 
 
@@ -186,13 +187,13 @@ async def transition_request(
     sys_msg = Message(
         request_id=request_id,
         sender_id=user.id,
-        content=f"Status changed to {new_status.value}" + (f": {message_content}" if message_content else "") + deadline_note,
+        content=f"Status changed to {new_status.value}" + deadline_note,
         is_system_message=True,
     )
     db.add(sys_msg)
 
-    # If user provides a message along with transition, add it as a regular message too
-    if message_content and new_status == RequestStatus.INFO_REQUESTED:
+    # Add reviewer message as a separate non-system message (not duplicated in sys_msg)
+    if message_content:
         user_msg = Message(
             request_id=request_id,
             sender_id=user.id,

@@ -46,8 +46,11 @@ export default function AdminPage() {
     fetchAll();
   }, []);
 
+  const [adminError, setAdminError] = useState<string | null>(null);
+
   const handleToggleActive = async (userId: string, currentActive: boolean) => {
     try {
+      setAdminError(null);
       await api.patch(`/admin/users/${userId}`, {
         is_active: !currentActive,
       });
@@ -56,23 +59,32 @@ export default function AdminPage() {
           u.id === userId ? { ...u, is_active: !currentActive } : u
         )
       );
-    } catch {
-      // handle error
+    } catch (err: unknown) {
+      setAdminError(
+        (err as { response?: { data?: { detail?: string } } })?.response?.data
+          ?.detail || 'Failed to update user status'
+      );
     }
   };
 
   const handleRoleChange = async (userId: string, newRole: UserRole) => {
     try {
+      setAdminError(null);
       await api.patch(`/admin/users/${userId}`, { role: newRole });
       setUsers((prev) =>
         prev.map((u) => (u.id === userId ? { ...u, role: newRole } : u))
       );
-    } catch {
-      // handle error
+    } catch (err: unknown) {
+      setAdminError(
+        (err as { response?: { data?: { detail?: string } } })?.response?.data
+          ?.detail || 'Failed to update user role'
+      );
     }
   };
 
   if (loading) return <LoadingSpinner label="Loading admin data" />;
+
+  const dismissError = () => setAdminError(null);
 
   const totalUsers = stats
     ? Object.values(stats.users_by_role).reduce((a, b) => a + b, 0)
@@ -146,6 +158,13 @@ export default function AdminPage() {
           </p>
         </div>
       </div>
+
+      {adminError && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center justify-between">
+          <span className="text-sm text-red-700">{adminError}</span>
+          <button onClick={dismissError} className="text-red-400 hover:text-red-600 text-xs ml-4">✕</button>
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="flex gap-1 bg-slate-100/70 rounded-xl p-1 mb-8 w-fit ring-1 ring-slate-200/70">
