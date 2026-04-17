@@ -88,3 +88,42 @@ export function formatFileSize(bytes: number): string {
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
+
+export interface RequiredDocument {
+  type: DocumentType;
+  label: string;
+  required: boolean;
+  description: string;
+}
+
+export const REQUIRED_DOCUMENTS: Record<VerificationMethod, RequiredDocument[]> = {
+  [VerificationMethod.INCOME]: [
+    { type: DocumentType.TAX_RETURN, label: 'Tax Return (Past 2 Years)', required: true, description: 'IRS Form 1040 showing income for each of the last two years' },
+    { type: DocumentType.W2, label: 'W-2 / 1099 Forms', required: true, description: 'W-2 or 1099 forms confirming reported income' },
+    { type: DocumentType.CPA_LETTER, label: 'CPA / Tax Advisor Letter', required: false, description: 'Letter from licensed CPA verifying income (alternative to tax returns)' },
+  ],
+  [VerificationMethod.NET_WORTH]: [
+    { type: DocumentType.BANK_STATEMENT, label: 'Bank Statements', required: true, description: 'Recent bank statements (within 90 days) showing account balances' },
+    { type: DocumentType.BROKERAGE_STATEMENT, label: 'Brokerage / Investment Statements', required: false, description: 'Investment account statements showing asset values' },
+    { type: DocumentType.CPA_LETTER, label: 'CPA / Accountant Letter', required: false, description: 'Letter from licensed CPA verifying net worth exceeds $1M' },
+  ],
+  [VerificationMethod.PROFESSIONAL_CREDENTIAL]: [
+    { type: DocumentType.LICENSE_PROOF, label: 'FINRA License Proof', required: true, description: 'BrokerCheck report or FINRA CRD showing active Series 7, 65, or 82 license' },
+  ],
+  [VerificationMethod.PROFESSIONAL_ROLE]: [
+    { type: DocumentType.ENTITY_FORMATION_DOC, label: 'Appointment / Organizational Docs', required: true, description: 'Board resolution, articles of incorporation, or partnership agreement showing your role' },
+    { type: DocumentType.OTHER, label: 'Employment Verification', required: false, description: 'Letter on company letterhead confirming your title and role' },
+  ],
+  [VerificationMethod.ENTITY_ASSETS]: [
+    { type: DocumentType.FINANCIAL_STATEMENT, label: 'Entity Financial Statements', required: true, description: 'Audited or unaudited financial statements showing total assets > $5M' },
+    { type: DocumentType.ENTITY_FORMATION_DOC, label: 'Entity Formation Documents', required: true, description: 'Certificate of incorporation, LLC agreement, or equivalent' },
+  ],
+  [VerificationMethod.ENTITY_ALL_OWNERS_ACCREDITED]: [
+    { type: DocumentType.ENTITY_FORMATION_DOC, label: 'Entity Formation / Operating Agreement', required: true, description: 'Documents listing all equity owners' },
+    { type: DocumentType.OTHER, label: 'Owner Accreditation Proof', required: true, description: 'Verification letters or documentation for each equity owner' },
+  ],
+  [VerificationMethod.ENTITY_INSTITUTIONAL]: [
+    { type: DocumentType.ENTITY_FORMATION_DOC, label: 'Charter / Registration Documents', required: true, description: 'Bank charter, insurance license, or SEC/state registration' },
+    { type: DocumentType.FINANCIAL_STATEMENT, label: 'Entity Financial Statements', required: false, description: 'Most recent audited financial statements' },
+  ],
+};

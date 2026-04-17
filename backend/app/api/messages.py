@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -8,6 +10,7 @@ from app.models.message import Message
 from app.models.user import User, UserRole
 from app.models.verification_request import VerificationRequest
 from app.schemas.message import MessageCreate, MessageListResponse, MessageResponse
+from app.services.notify import notify_new_message
 
 router = APIRouter(prefix="/api/messages", tags=["Messages"])
 
@@ -63,6 +66,18 @@ async def send_message(
         is_system_message=False,
     )
     db.add(msg)
+
+    # Update last_message_at on the request
+    req_result = await db.execute(
+        select(VerificationRequest).where(VerificationRequest.id == request_id)
+    )
+    req = req_result.scalar_one()
+    req.last_message_at = datetime.now(timezone.utc)
+
+    await db.flush()
+
+    # Create notifications for other participants
+    await notify_new_message(db, req, current_user)
     await db.flush()
 
     return MessageResponse(

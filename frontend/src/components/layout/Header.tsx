@@ -1,17 +1,75 @@
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { UserRole } from '../../types';
-import { LogOut, ShieldCheck, Menu, X } from 'lucide-react';
-import { useState } from 'react';
+import { useNotifications } from '../../context/NotificationContext';
+import { UserRole, NotificationType } from '../../types';
+import type { AppNotification } from '../../types';
+import { LogOut, ShieldCheck, Menu, X, Bell, CheckCheck, MessageSquare, CheckCircle2, XCircle, AlertCircle, Send, UserPlus } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+
+function notificationIcon(type: NotificationType) {
+  switch (type) {
+    case NotificationType.NEW_MESSAGE:
+      return <MessageSquare className="h-4 w-4 text-indigo-500" />;
+    case NotificationType.REQUEST_APPROVED:
+      return <CheckCircle2 className="h-4 w-4 text-emerald-500" />;
+    case NotificationType.REQUEST_DENIED:
+      return <XCircle className="h-4 w-4 text-red-500" />;
+    case NotificationType.INFO_REQUESTED:
+      return <AlertCircle className="h-4 w-4 text-orange-500" />;
+    case NotificationType.INFO_PROVIDED:
+      return <Send className="h-4 w-4 text-cyan-500" />;
+    case NotificationType.REQUEST_SUBMITTED:
+      return <Send className="h-4 w-4 text-blue-500" />;
+    case NotificationType.REQUEST_ASSIGNED:
+      return <UserPlus className="h-4 w-4 text-amber-500" />;
+  }
+}
+
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
+}
 
 export default function Header() {
   const { user, logout } = useAuth();
+  const { notifications, unreadCount, markAllRead, markAsRead } = useNotifications();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [bellOpen, setBellOpen] = useState(false);
+  const bellRef = useRef<HTMLDivElement>(null);
 
   const handleLogout = () => {
     logout();
     navigate('/');
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (bellRef.current && !bellRef.current.contains(e.target as Node)) {
+        setBellOpen(false);
+      }
+    };
+    if (bellOpen) document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [bellOpen]);
+
+  const handleNotificationClick = async (n: AppNotification) => {
+    if (!n.is_read) await markAsRead([n.id]);
+    setBellOpen(false);
+    if (n.request_id) {
+      if (user?.role === UserRole.INVESTOR) {
+        navigate(`/requests/${n.request_id}`);
+      } else {
+        navigate(`/review/${n.request_id}`);
+      }
+    }
   };
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
@@ -83,6 +141,80 @@ export default function Header() {
                   </NavLink>
                 )}
                 <div className="flex items-center gap-3 ml-3 pl-5 border-l border-slate-200">
+                  {/* Notification Bell */}
+                  <div className="relative" ref={bellRef}>
+                    <button
+                      onClick={() => setBellOpen((v) => !v)}
+                      className="relative p-1.5 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition"
+                      aria-label="Notifications"
+                    >
+                      <Bell className="h-5 w-5" />
+                      {unreadCount > 0 && (
+                        <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-bold px-1 ring-2 ring-white">
+                          {unreadCount > 99 ? '99+' : unreadCount}
+                        </span>
+                      )}
+                    </button>
+
+                    {/* Dropdown */}
+                    {bellOpen && (
+                      <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-xl border border-slate-200 shadow-xl z-50 overflow-hidden animate-fade-in">
+                        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 bg-slate-50/50">
+                          <h3 className="text-sm font-semibold text-slate-900">
+                            Notifications
+                          </h3>
+                          {unreadCount > 0 && (
+                            <button
+                              onClick={async () => { await markAllRead(); }}
+                              className="inline-flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-700 font-medium"
+                            >
+                              <CheckCheck className="h-3.5 w-3.5" />
+                              Mark all read
+                            </button>
+                          )}
+                        </div>
+                        <div className="max-h-80 overflow-y-auto divide-y divide-slate-50">
+                          {notifications.length === 0 ? (
+                            <div className="px-4 py-8 text-center">
+                              <Bell className="h-8 w-8 text-slate-300 mx-auto mb-2" />
+                              <p className="text-sm text-slate-400">No notifications yet</p>
+                            </div>
+                          ) : (
+                            notifications.slice(0, 20).map((n) => (
+                              <button
+                                key={n.id}
+                                onClick={() => handleNotificationClick(n)}
+                                className={`w-full text-left px-4 py-3 flex gap-3 hover:bg-slate-50 transition ${
+                                  !n.is_read ? 'bg-indigo-50/40' : ''
+                                }`}
+                              >
+                                <div className="mt-0.5 shrink-0">
+                                  {notificationIcon(n.type)}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2">
+                                    <p className={`text-sm truncate ${!n.is_read ? 'font-semibold text-slate-900' : 'text-slate-700'}`}>
+                                      {n.title}
+                                    </p>
+                                    {!n.is_read && (
+                                      <span className="h-2 w-2 rounded-full bg-indigo-500 shrink-0" />
+                                    )}
+                                  </div>
+                                  <p className="text-xs text-slate-500 truncate mt-0.5">
+                                    {n.message}
+                                  </p>
+                                  <p className="text-[10px] text-slate-400 mt-1">
+                                    {timeAgo(n.created_at)}
+                                  </p>
+                                </div>
+                              </button>
+                            ))
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
                   <div className="flex items-center gap-2">
                     <div className="h-8 w-8 rounded-full bg-gradient-to-br from-slate-200 to-slate-300 text-slate-700 flex items-center justify-center text-xs font-semibold ring-1 ring-slate-300">
                       {user.first_name?.[0]}

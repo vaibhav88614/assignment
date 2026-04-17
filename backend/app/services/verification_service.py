@@ -18,6 +18,7 @@ from app.schemas.verification import (
     VerificationRequestDetail,
     VerificationRequestUpdate,
 )
+from app.services.notify import notify_status_change
 
 
 async def create_request(
@@ -122,7 +123,7 @@ async def update_request(
     return req
 
 
-async def submit_request(db: AsyncSession, request_id: str) -> VerificationRequest:
+async def submit_request(db: AsyncSession, request_id: str, user: User | None = None) -> VerificationRequest:
     req = await get_request(db, request_id)
     _validate_transition(req.status, RequestStatus.SUBMITTED)
 
@@ -140,6 +141,12 @@ async def submit_request(db: AsyncSession, request_id: str) -> VerificationReque
     req.status = RequestStatus.SUBMITTED
     req.submitted_at = datetime.now(timezone.utc)
     await db.flush()
+
+    # Notify admins about new submission
+    if user:
+        await notify_status_change(db, req, RequestStatus.SUBMITTED.value, user)
+        await db.flush()
+
     return req
 
 
@@ -241,6 +248,11 @@ async def transition_request(
         db.add(user_msg)
 
     await db.flush()
+
+    # Create in-app notifications
+    await notify_status_change(db, req, new_status.value, user)
+    await db.flush()
+
     return req
 
 
@@ -294,7 +306,16 @@ async def list_requests_for_investor(
         .offset((page - 1) * page_size)
         .limit(page_size)
     )
-    return list(result.scalars().all()), total
+    reqs = list(result.scalars().all())
+
+    # Annotate message_count
+    for req in reqs:
+        mc = await db.execute(
+            select(func.count()).where(Message.request_id == req.id)
+        )
+        req.message_count = mc.scalar() or 0
+
+    return reqs, total
 
 
 async def list_requests_for_review(
@@ -328,7 +349,16 @@ async def list_requests_for_review(
         .offset((page - 1) * page_size)
         .limit(page_size)
     )
-    return list(result.scalars().all()), total
+    reqs = list(result.scalars().all())
+
+    # Annotate message_count
+    for req in reqs:
+        mc = await db.execute(
+            select(func.count()).where(Message.request_id == req.id)
+        )
+        req.message_count = mc.scalar() or 0
+
+    return reqs, total
 
 
 def _validate_transition(current: RequestStatus, target: RequestStatus) -> None:

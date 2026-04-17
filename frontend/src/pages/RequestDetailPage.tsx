@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import api from '../api/client';
 import StatusBadge from '../components/common/StatusBadge';
+import StatusStepper from '../components/common/StatusStepper';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import FileUpload from '../components/documents/FileUpload';
 import MessageThread from '../components/messages/MessageThread';
@@ -70,17 +71,10 @@ function useCountdown(deadline: string | null) {
 
 function InfoRequestedBanner({
   infoDeadline,
-  onProvideInfo,
-  onUpload,
-  uploading,
 }: {
   infoDeadline: string | null;
-  onProvideInfo: (message?: string) => void;
-  onUpload: (file: File, documentType: DocumentType) => Promise<void>;
-  uploading: boolean;
 }) {
   const { timeLeft, isExpired, isUrgent } = useCountdown(infoDeadline);
-  const [responseMessage, setResponseMessage] = useState('');
 
   const bgClass = isExpired
     ? 'bg-red-50 border-red-300'
@@ -135,30 +129,8 @@ function InfoRequestedBanner({
           <p className={`text-sm ${subColor} mt-2`}>
             {isExpired
               ? 'The deadline to provide the requested information has passed. Your request may be automatically denied.'
-              : 'Upload additional documents and/or provide a written response, then click "Submit Additional Info".'}
+              : 'Use the message thread below to upload documents and respond to the reviewer.'}
           </p>
-          {!isExpired && (
-            <div className="mt-3 space-y-3">
-              <textarea
-                value={responseMessage}
-                onChange={(e) => setResponseMessage(e.target.value)}
-                placeholder="Type your response message here (required)..."
-                rows={3}
-                className="w-full rounded-lg border border-orange-200 bg-white px-3 py-2 text-sm placeholder:text-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-300 focus:border-orange-300"
-              />
-              <div className="rounded-lg border border-orange-200 bg-white p-3">
-                <p className="text-xs font-medium text-orange-700 mb-2">Upload additional documents</p>
-                <FileUpload onUpload={onUpload} uploading={uploading} />
-              </div>
-              <button
-                onClick={() => onProvideInfo(responseMessage)}
-                disabled={!responseMessage.trim()}
-                className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Submit Additional Info
-              </button>
-            </div>
-          )}
         </div>
       </div>
     </div>
@@ -195,6 +167,13 @@ export default function RequestDetailPage() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  // Mark as read
+  useEffect(() => {
+    if (id) {
+      localStorage.setItem(`lastSeen:${id}`, new Date().toISOString());
+    }
+  }, [id]);
 
   // Poll for new messages
   useEffect(() => {
@@ -344,6 +323,11 @@ export default function RequestDetailPage() {
               <StatusBadge status={request.status} />
             </div>
 
+            {/* Status Stepper */}
+            <div className="mt-5 pt-5 border-t border-slate-100">
+              <StatusStepper status={request.status} />
+            </div>
+
             {request.denial_reason && (
               <div className="mt-4 bg-red-50 border border-red-200 rounded-lg p-4">
                 <p className="text-sm font-medium text-red-800">Denial Reason:</p>
@@ -376,9 +360,6 @@ export default function RequestDetailPage() {
             {request.status === RequestStatus.INFO_REQUESTED && (
               <InfoRequestedBanner
                 infoDeadline={request.info_deadline}
-                onProvideInfo={handleProvideInfo}
-                onUpload={handleUpload}
-                uploading={uploading}
               />
             )}
           </div>
@@ -473,6 +454,10 @@ export default function RequestDetailPage() {
               messages={messages}
               onSend={handleSendMessage}
               sending={sending}
+              requestStatus={request.status}
+              onProvideInfo={handleProvideInfo}
+              onUpload={handleUpload}
+              uploading={uploading}
             />
           </div>
         </div>

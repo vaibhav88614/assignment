@@ -8,4 +8,5 @@ from app.models.verification_request import (  # noqa: F401
 )
 from app.models.document import Document, DocumentType  # noqa: F401
 from app.models.message import Message  # noqa: F401
+from app.models.notification import Notification, NotificationType  # noqa: F401
 from app.models.verification_letter import VerificationLetter  # noqa: F401

@@ -25,7 +25,8 @@ import {
   DocumentType,
   type VerificationRequest,
 } from '../types';
-import { METHOD_LABELS, METHOD_DESCRIPTIONS } from '../utils/constants';
+import { METHOD_LABELS, METHOD_DESCRIPTIONS, REQUIRED_DOCUMENTS } from '../utils/constants';
+import type { RequiredDocument } from '../utils/constants';
 
 const STEPS = [
   { title: 'Investor Type', hint: 'Individual or entity' },
@@ -76,7 +77,7 @@ export default function NewRequestPage() {
   const [method, setMethod] = useState<VerificationMethod | null>(null);
   const [attestation, setAttestation] = useState<Record<string, string>>({});
   const [createdRequest, setCreatedRequest] = useState<VerificationRequest | null>(null);
-  const [uploadedDocs, setUploadedDocs] = useState<string[]>([]);
+  const [uploadedDocs, setUploadedDocs] = useState<{ name: string; type: DocumentType }[]>([]);
   const [attestationConfirmed, setAttestationConfirmed] = useState(false);
   const [error, setError] = useState('');
   const [uploading, setUploading] = useState(false);
@@ -218,7 +219,7 @@ export default function NewRequestPage() {
       await api.post(`/documents/${createdRequest.id}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      setUploadedDocs((prev) => [...prev, file.name]);
+      setUploadedDocs((prev) => [...prev, { name: file.name, type: documentType }]);
     } catch (err: unknown) {
       setError(
         (err as { response?: { data?: { detail?: string } } })?.response?.data
@@ -321,8 +322,12 @@ export default function NewRequestPage() {
           selfAttestChecks.length > 0 &&
           selfAttestChecks.every(Boolean)
         );
-      case 3:
-        return uploadedDocs.length > 0;
+      case 3: {
+        if (!method) return false;
+        const requiredTypes = REQUIRED_DOCUMENTS[method].filter(d => d.required).map(d => d.type);
+        const uploadedTypes = new Set(uploadedDocs.map(d => d.type));
+        return requiredTypes.every(t => uploadedTypes.has(t));
+      }
       case 4:
         return attestationConfirmed;
       default:
@@ -667,42 +672,116 @@ export default function NewRequestPage() {
       )}
 
       {/* Step 3: Documents */}
-      {step === 3 && (
+      {step === 3 && method && (
         <div className="space-y-5 animate-fade-in">
           <div>
             <h2 className="text-lg font-semibold text-slate-900">
               Upload supporting documents
             </h2>
             <p className="text-sm text-slate-500 mt-1">
-              Upload documents that support your attestation. PDF, JPG, PNG —
-              up to 10MB each.
+              Upload each required document for your verification method. PDF, JPG, PNG — up to 10MB each.
             </p>
           </div>
 
-          <div className="card p-6">
-            <FileUpload onUpload={handleUpload} uploading={uploading} />
+          {/* Document checklist */}
+          <div className="space-y-3">
+            {REQUIRED_DOCUMENTS[method].map((reqDoc: RequiredDocument) => {
+              const uploaded = uploadedDocs.filter(d => d.type === reqDoc.type);
+              const isUploaded = uploaded.length > 0;
 
-            {uploadedDocs.length > 0 && (
-              <div className="mt-5 space-y-2 pt-5 border-t border-slate-100">
-                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                  Uploaded ({uploadedDocs.length})
-                </p>
-                <div className="space-y-1.5">
-                  {uploadedDocs.map((name, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center gap-2.5 text-sm text-emerald-800 bg-emerald-50 border border-emerald-200 px-3 py-2 rounded-lg animate-fade-in"
-                    >
-                      <span className="h-5 w-5 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0">
-                        <Check className="h-3 w-3" />
-                      </span>
-                      <span className="truncate">{name}</span>
+              return (
+                <div
+                  key={reqDoc.type}
+                  className={`card p-4 transition-all ${
+                    isUploaded
+                      ? 'ring-1 ring-emerald-200 bg-emerald-50/30'
+                      : reqDoc.required
+                      ? 'ring-1 ring-slate-200'
+                      : 'ring-1 ring-slate-100 bg-slate-50/30'
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 ${
+                      isUploaded
+                        ? 'bg-emerald-500 text-white'
+                        : 'bg-slate-100 text-slate-400'
+                    }`}>
+                      {isUploaded ? (
+                        <Check className="h-4 w-4" />
+                      ) : (
+                        <FileCheck2 className="h-4 w-4" />
+                      )}
                     </div>
-                  ))}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="text-sm font-semibold text-slate-900">
+                          {reqDoc.label}
+                        </h3>
+                        <span
+                          className={`text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded ${
+                            reqDoc.required
+                              ? 'bg-red-50 text-red-600 ring-1 ring-red-200'
+                              : 'bg-slate-100 text-slate-500 ring-1 ring-slate-200'
+                          }`}
+                        >
+                          {reqDoc.required ? 'Required' : 'Optional'}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                        {reqDoc.description}
+                      </p>
+                      {isUploaded && (
+                        <div className="mt-2 space-y-1">
+                          {uploaded.map((doc, i) => (
+                            <div
+                              key={i}
+                              className="inline-flex items-center gap-1.5 text-xs text-emerald-700 bg-emerald-100 px-2 py-1 rounded-md mr-2"
+                            >
+                              <Check className="h-3 w-3" />
+                              <span className="truncate max-w-[200px]">{doc.name}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {!isUploaded && (
+                        <div className="mt-3">
+                          <FileUpload
+                            onUpload={(file) => handleUpload(file, reqDoc.type)}
+                            uploading={uploading}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })}
           </div>
+
+          {/* Summary */}
+          {uploadedDocs.length > 0 && (
+            <div className="card p-4 bg-slate-50/50">
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                Upload Summary
+              </p>
+              <div className="text-sm text-slate-700">
+                <span className="font-semibold text-emerald-700">{uploadedDocs.length}</span>{' '}
+                document{uploadedDocs.length === 1 ? '' : 's'} uploaded
+                {(() => {
+                  const requiredTypes = REQUIRED_DOCUMENTS[method].filter(d => d.required).map(d => d.type);
+                  const uploadedTypes = new Set(uploadedDocs.map(d => d.type));
+                  const remaining = requiredTypes.filter(t => !uploadedTypes.has(t)).length;
+                  return remaining > 0 ? (
+                    <span className="text-orange-600 ml-1">
+                      &middot; {remaining} required document{remaining === 1 ? '' : 's'} remaining
+                    </span>
+                  ) : (
+                    <span className="text-emerald-600 ml-1">&middot; All required documents uploaded</span>
+                  );
+                })()}
+              </div>
+            </div>
+          )}
         </div>
       )}
 

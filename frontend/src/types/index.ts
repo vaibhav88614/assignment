@@ -69,6 +69,8 @@ export interface VerificationRequest {
   submitted_at: string | null;
   reviewed_at: string | null;
   expires_at: string | null;
+  last_message_at: string | null;
+  message_count: number;
   created_at: string;
   updated_at: string;
 }
@@ -132,4 +134,29 @@ export interface AdminStats {
   users_by_role: Record<string, number>;
   requests_by_status: Record<string, number>;
   total_letters_issued: number;
+}
+
+export enum NotificationType {
+  NEW_MESSAGE = 'NEW_MESSAGE',
+  REQUEST_APPROVED = 'REQUEST_APPROVED',
+  REQUEST_DENIED = 'REQUEST_DENIED',
+  INFO_REQUESTED = 'INFO_REQUESTED',
+  INFO_PROVIDED = 'INFO_PROVIDED',
+  REQUEST_SUBMITTED = 'REQUEST_SUBMITTED',
+  REQUEST_ASSIGNED = 'REQUEST_ASSIGNED',
+}
+
+export interface AppNotification {
+  id: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  request_id: string | null;
+  is_read: boolean;
+  created_at: string;
+}
+
+export interface NotificationListResponse {
+  items: AppNotification[];
+  unread_count: number;
 }

@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import auth, verification, documents, messages, admin
+from app.api import auth, verification, documents, messages, admin, notifications
 from app.config import settings
 from app.database import init_db
 
@@ -84,6 +84,7 @@ app.include_router(verification.router)
 app.include_router(documents.router)
 app.include_router(messages.router)
 app.include_router(admin.router)
+app.include_router(notifications.router)
 
 
 @app.get("/api/health")

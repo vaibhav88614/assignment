@@ -16,6 +16,7 @@ import {
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import StatusBadge from '../components/common/StatusBadge';
+import StatusStepper from '../components/common/StatusStepper';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import MessageThread from '../components/messages/MessageThread';
 import {
@@ -71,6 +72,13 @@ export default function ReviewDetailPage() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  // Mark as read
+  useEffect(() => {
+    if (id) {
+      localStorage.setItem(`lastSeen:${id}`, new Date().toISOString());
+    }
+  }, [id]);
 
   useEffect(() => {
     const interval = setInterval(async () => {
@@ -251,6 +259,11 @@ export default function ReviewDetailPage() {
               <StatusBadge status={request.status} size="md" />
             </div>
 
+            {/* Status Stepper */}
+            <div className="mt-5 pt-5 border-t border-slate-100">
+              <StatusStepper status={request.status} />
+            </div>
+
             {/* Action Buttons */}
             {canReview && (
               <div className="flex flex-wrap gap-2.5 pt-5 border-t border-slate-100">
@@ -284,26 +297,26 @@ export default function ReviewDetailPage() {
                           handleTransition(RequestStatus.APPROVED)
                         }
                         disabled={actionLoading}
-                        className="inline-flex items-center gap-2 bg-gradient-to-b from-emerald-500 to-emerald-600 text-white px-4 py-2 rounded-lg hover:brightness-105 disabled:opacity-50 transition text-sm font-medium shadow-sm"
+                        className="inline-flex items-center gap-2 bg-gradient-to-b from-emerald-500 to-emerald-600 text-white px-5 py-2.5 rounded-lg hover:brightness-105 disabled:opacity-50 transition text-sm font-semibold shadow-sm"
                       >
                         <CheckCircle2 className="h-4 w-4" />
                         Approve
                       </button>
                       <button
+                        onClick={() => setShowRequestInfo((v) => !v)}
+                        disabled={actionLoading}
+                        className="inline-flex items-center gap-2 border border-orange-300 bg-orange-50 text-orange-700 px-4 py-2 rounded-lg hover:bg-orange-100 disabled:opacity-50 transition text-sm font-medium"
+                      >
+                        <AlertCircle className="h-4 w-4" />
+                        Request More Info
+                      </button>
+                      <button
                         onClick={() => setShowDeny((v) => !v)}
                         disabled={actionLoading}
-                        className="inline-flex items-center gap-2 bg-gradient-to-b from-red-500 to-red-600 text-white px-4 py-2 rounded-lg hover:brightness-105 disabled:opacity-50 transition text-sm font-medium shadow-sm"
+                        className="inline-flex items-center gap-2 border border-red-200 text-red-600 px-4 py-2 rounded-lg hover:bg-red-50 disabled:opacity-50 transition text-sm font-medium"
                       >
                         <XCircle className="h-4 w-4" />
                         Deny
-                      </button>
-                      <button
-                        onClick={() => setShowRequestInfo((v) => !v)}
-                        disabled={actionLoading}
-                        className="inline-flex items-center gap-2 bg-gradient-to-b from-orange-500 to-orange-600 text-white px-4 py-2 rounded-lg hover:brightness-105 disabled:opacity-50 transition text-sm font-medium shadow-sm"
-                      >
-                        <AlertCircle className="h-4 w-4" />
-                      Request More Info
                     </button>
                   </>
                   )

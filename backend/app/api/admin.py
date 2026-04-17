@@ -97,6 +97,25 @@ async def assign_reviewer(
     db.add(sys_msg)
     await db.flush()
 
+    # Notify the assigned reviewer
+    from app.models.notification import Notification, NotificationType
+    db.add(Notification(
+        user_id=reviewer_id,
+        type=NotificationType.REQUEST_ASSIGNED,
+        title="New Assignment",
+        message=f"You have been assigned a new verification request to review.",
+        request_id=request_id,
+    ))
+    # Notify investor
+    db.add(Notification(
+        user_id=req.investor_id,
+        type=NotificationType.REQUEST_ASSIGNED,
+        title="Review Started",
+        message=f"Your verification request is now being reviewed.",
+        request_id=request_id,
+    ))
+    await db.flush()
+
     return {"detail": "Reviewer assigned", "request_id": request_id, "reviewer_id": reviewer_id}
 
 

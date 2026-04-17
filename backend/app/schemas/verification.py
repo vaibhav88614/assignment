@@ -50,6 +50,8 @@ class VerificationRequestResponse(BaseModel):
     submitted_at: datetime | None
     reviewed_at: datetime | None
     expires_at: datetime | None
+    last_message_at: datetime | None = None
+    message_count: int = 0
     created_at: datetime
     updated_at: datetime
 

@@ -24,6 +24,7 @@ from app.services.verification_service import (
     transition_request,
     update_request,
 )
+from app.services.notify import notify_status_change
 
 router = APIRouter(prefix="/api/verification", tags=["Verification"])
 
@@ -91,7 +92,7 @@ async def submit_verification_request(
             status_code=http_status.HTTP_400_BAD_REQUEST,
             detail="You must confirm the attestation to submit",
         )
-    return await submit_request(db, request_id)
+    return await submit_request(db, request_id, current_user)
 
 
 @router.post("/requests/{request_id}/provide-info", response_model=VerificationRequestResponse)

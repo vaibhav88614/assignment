@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Plus,
@@ -15,6 +15,7 @@ import {
   Timer,
   ArrowUpRight,
   Sparkles,
+  Mail,
 } from 'lucide-react';
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
@@ -27,6 +28,13 @@ import {
   type VerificationRequestList,
 } from '../types';
 import { METHOD_LABELS, formatDate } from '../utils/constants';
+
+function hasUnread(req: VerificationRequest): boolean {
+  if (!req.last_message_at || req.message_count === 0) return false;
+  const lastSeen = localStorage.getItem(`lastSeen:${req.id}`);
+  if (!lastSeen) return true;
+  return new Date(req.last_message_at).getTime() > new Date(lastSeen).getTime();
+}
 
 type ReviewerFilter = 'all' | 'unclaimed' | 'mine' | 'completed';
 
@@ -55,15 +63,29 @@ function daysBetween(iso: string | null): number | null {
   return days;
 }
 
+type InvestorFilter = 'all' | 'active' | 'approved' | 'denied';
+
 export default function DashboardPage() {
   const { user } = useAuth();
   const [requests, setRequests] = useState<VerificationRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [filter, setFilter] = useState<ReviewerFilter>('all');
+  const [investorFilter, setInvestorFilter] = useState<InvestorFilter>('all');
 
   const isReviewer =
     user?.role === UserRole.REVIEWER || user?.role === UserRole.ADMIN;
+
+  // Expose unread count for Header polling
+  const unreadCount = useMemo(
+    () => requests.filter(hasUnread).length,
+    [requests]
+  );
+
+  // Store unread count so Header can read it
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent('unread-count', { detail: unreadCount }));
+  }, [unreadCount]);
 
   useEffect(() => {
     const fetchRequests = async () => {
@@ -148,14 +170,31 @@ export default function DashboardPage() {
       ? Math.round((stats.approved / (stats.approved + stats.denied)) * 100)
       : 0;
 
-  // Investor stat cards (unchanged structure, refined visuals live on the page)
-  const investorStatCards = [
+  // Filtered investor requests
+  const investorFiltered = (() => {
+    switch (investorFilter) {
+      case 'active':
+        return requests.filter((r) =>
+          [RequestStatus.SUBMITTED, RequestStatus.UNDER_REVIEW, RequestStatus.INFO_REQUESTED, RequestStatus.ADDITIONAL_INFO_PROVIDED].includes(r.status)
+        );
+      case 'approved':
+        return requests.filter((r) => r.status === RequestStatus.APPROVED);
+      case 'denied':
+        return requests.filter((r) => r.status === RequestStatus.DENIED);
+      default:
+        return requests;
+    }
+  })();
+
+  // Investor stat cards — now clickable
+  const investorStatCards: { label: string; value: number; icon: typeof FileCheck; iconBg: string; ring: string; filterKey: InvestorFilter }[] = [
     {
       label: 'Total',
       value: stats.total,
       icon: FileCheck,
       iconBg: 'bg-slate-100 text-slate-600',
       ring: '',
+      filterKey: 'all',
     },
     {
       label: 'Active',
@@ -163,6 +202,7 @@ export default function DashboardPage() {
       icon: Clock,
       iconBg: 'bg-amber-100 text-amber-600',
       ring: 'ring-1 ring-amber-100',
+      filterKey: 'active' as InvestorFilter,
     },
     {
       label: 'Approved',
@@ -170,6 +210,7 @@ export default function DashboardPage() {
       icon: CheckCircle2,
       iconBg: 'bg-emerald-100 text-emerald-600',
       ring: 'ring-1 ring-emerald-100',
+      filterKey: 'approved' as InvestorFilter,
     },
     {
       label: 'Denied',
@@ -177,6 +218,7 @@ export default function DashboardPage() {
       icon: XCircle,
       iconBg: 'bg-red-100 text-red-600',
       ring: 'ring-1 ring-red-100',
+      filterKey: 'denied' as InvestorFilter,
     },
   ];
 
@@ -265,6 +307,7 @@ export default function DashboardPage() {
               accent="from-amber-50 to-white"
               iconBg="bg-amber-100 text-amber-600"
               hint="Investors owe documents"
+              onClick={() => setFilter('all')}
             />
             <ReviewerKpi
               label="Approval rate"
@@ -273,6 +316,7 @@ export default function DashboardPage() {
               accent="from-emerald-50 to-white"
               iconBg="bg-emerald-100 text-emerald-600"
               hint={`${stats.approved} approved · ${stats.denied} denied`}
+              onClick={() => setFilter('completed')}
             />
           </div>
 
@@ -342,82 +386,121 @@ export default function DashboardPage() {
       ) : (
         // INVESTOR VIEW
         <>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            {investorStatCards.map(({ label, value, icon: Icon, iconBg, ring }) => (
-              <div
-                key={label}
-                className={`card p-5 flex items-center gap-4 ${ring}`}
-              >
-                <div
-                  className={`h-11 w-11 rounded-xl flex items-center justify-center ${iconBg}`}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            {investorStatCards.map(({ label, value, icon: Icon, iconBg, filterKey }) => {
+              const active = investorFilter === filterKey;
+              return (
+                <button
+                  key={label}
+                  onClick={() => setInvestorFilter(filterKey)}
+                  className={`card p-5 flex items-center gap-4 text-left transition-all cursor-pointer ${
+                    active
+                      ? 'ring-2 ring-indigo-400 shadow-md'
+                      : 'hover:shadow-sm hover:ring-1 hover:ring-slate-200'
+                  }`}
                 >
-                  <Icon className="h-5 w-5" />
-                </div>
-                <div>
-                  <p className="text-2xl font-semibold tracking-tight text-slate-900">
-                    {value}
-                  </p>
-                  <p className="text-xs uppercase tracking-wide text-slate-500 font-medium">
-                    {label}
-                  </p>
-                </div>
-              </div>
-            ))}
+                  <div
+                    className={`h-11 w-11 rounded-xl flex items-center justify-center ${iconBg}`}
+                  >
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-semibold tracking-tight text-slate-900">
+                      {value}
+                    </p>
+                    <p className="text-xs uppercase tracking-wide text-slate-500 font-medium">
+                      {label}
+                    </p>
+                  </div>
+                </button>
+              );
+            })}
           </div>
 
-          {requests.length === 0 ? (
+          {/* Active filter label */}
+          {investorFilter !== 'all' && (
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-xs font-medium text-slate-500">
+                Showing: <span className="text-slate-800 capitalize">{investorFilter}</span> ({investorFiltered.length})
+              </span>
+              <button
+                onClick={() => setInvestorFilter('all')}
+                className="text-xs text-indigo-600 hover:text-indigo-700 font-medium"
+              >
+                Clear filter
+              </button>
+            </div>
+          )}
+
+          {investorFiltered.length === 0 ? (
             <div className="card p-14 text-center">
               <div className="mx-auto mb-5 h-14 w-14 rounded-full bg-slate-100 flex items-center justify-center">
                 <AlertCircle className="h-7 w-7 text-slate-400" />
               </div>
               <h3 className="text-lg font-semibold text-slate-900 mb-1.5">
-                No requests yet
+                {investorFilter === 'all' ? 'No requests yet' : `No ${investorFilter} requests`}
               </h3>
               <p className="text-sm text-slate-500 mb-6 max-w-sm mx-auto">
-                Start your accredited investor verification by creating a new request.
+                {investorFilter === 'all'
+                  ? 'Start your accredited investor verification by creating a new request.'
+                  : 'Try a different filter or create a new request.'}
               </p>
-              <Link
-                to="/new-request"
-                className="inline-flex items-center gap-1.5 bg-gradient-to-b from-indigo-500 to-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm hover:brightness-105 transition"
-              >
-                <Plus className="h-4 w-4" />
-                Create New Request
-              </Link>
+              {investorFilter === 'all' && (
+                <Link
+                  to="/new-request"
+                  className="inline-flex items-center gap-1.5 bg-gradient-to-b from-indigo-500 to-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm hover:brightness-105 transition"
+                >
+                  <Plus className="h-4 w-4" />
+                  Create New Request
+                </Link>
+              )}
             </div>
           ) : (
             <div className="space-y-2.5">
-              {requests.map((req) => (
-                <Link
-                  key={req.id}
-                  to={`/requests/${req.id}`}
-                  className="card card-hover block p-5 group"
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex flex-wrap items-center gap-2.5 mb-1.5">
-                        <h3 className="font-semibold text-slate-900">
-                          {METHOD_LABELS[req.verification_method]}
-                        </h3>
-                        <StatusBadge status={req.status} />
+              {investorFiltered.map((req) => {
+                const unread = hasUnread(req);
+                return (
+                  <Link
+                    key={req.id}
+                    to={`/requests/${req.id}`}
+                    className={`card card-hover block p-5 group ${unread ? 'ring-1 ring-indigo-200 bg-indigo-50/30' : ''}`}
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-2.5 mb-1.5">
+                          <h3 className="font-semibold text-slate-900">
+                            {METHOD_LABELS[req.verification_method]}
+                          </h3>
+                          <StatusBadge status={req.status} />
+                          {unread && (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-semibold bg-indigo-100 text-indigo-700 ring-1 ring-indigo-200 px-1.5 py-0.5 rounded-full">
+                              <Mail className="h-3 w-3" />
+                              New message
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-slate-500">
+                          {req.investor_type} &middot; Created{' '}
+                          {formatDate(req.created_at)}
+                          {req.submitted_at &&
+                            ` · Submitted ${formatDate(req.submitted_at)}`}
+                        </p>
                       </div>
-                      <p className="text-xs text-slate-500">
-                        {req.investor_type} &middot; Created{' '}
-                        {formatDate(req.created_at)}
-                        {req.submitted_at &&
-                          ` · Submitted ${formatDate(req.submitted_at)}`}
-                      </p>
+                      <div className="flex items-center gap-4 text-xs text-slate-500">
+                        {req.expires_at && (
+                          <span className="whitespace-nowrap">
+                            Expires {formatDate(req.expires_at)}
+                          </span>
+                        )}
+                        {unread && (
+                          <span className="h-2.5 w-2.5 rounded-full bg-indigo-500 animate-pulse shrink-0" />
+                        )}
+                        <ChevronRight className="h-4 w-4 text-slate-400 group-hover:text-indigo-500 group-hover:translate-x-0.5 transition" />
+                      </div>
                     </div>
-                    <div className="flex items-center gap-4 text-xs text-slate-500">
-                      {req.expires_at && (
-                        <span className="whitespace-nowrap">
-                          Expires {formatDate(req.expires_at)}
-                        </span>
-                      )}
-                      <ChevronRight className="h-4 w-4 text-slate-400 group-hover:text-indigo-500 group-hover:translate-x-0.5 transition" />
-                    </div>
-                  </div>
-                </Link>
-              ))}
+                  </Link>
+                );
+              })}
             </div>
           )}
         </>
@@ -562,12 +645,14 @@ function ReviewerList({
           !req.assigned_reviewer_id && req.status === RequestStatus.SUBMITTED;
         const pendingDays = daysBetween(req.submitted_at);
         const isStale = pendingDays !== null && pendingDays >= 3;
+        const unread = hasUnread(req);
+        const isCompleted = [RequestStatus.APPROVED, RequestStatus.DENIED, RequestStatus.EXPIRED].includes(req.status);
 
         return (
           <Link
             key={req.id}
             to={`/review/${req.id}`}
-            className="card card-hover block p-5 group"
+            className={`card card-hover block p-5 group ${unread ? 'ring-1 ring-indigo-200 bg-indigo-50/30' : ''}`}
           >
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex-1 min-w-0">
@@ -594,6 +679,12 @@ function ReviewerList({
                       {pendingDays}d pending
                     </span>
                   )}
+                  {unread && (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold bg-indigo-100 text-indigo-700 ring-1 ring-indigo-200 px-1.5 py-0.5 rounded-full">
+                      <Mail className="h-3 w-3" />
+                      New message
+                    </span>
+                  )}
                 </div>
                 <p className="text-xs text-slate-500">
                   {req.investor_type} &middot; Submitted{' '}
@@ -603,6 +694,10 @@ function ReviewerList({
                   {req.info_deadline &&
                     req.status === RequestStatus.INFO_REQUESTED &&
                     ` · Deadline ${formatDate(req.info_deadline)}`}
+                  {isCompleted && req.reviewed_at &&
+                    ` · Decided ${formatDate(req.reviewed_at)}`}
+                  {isCompleted && req.denial_reason &&
+                    ` · Reason: ${req.denial_reason.substring(0, 50)}${req.denial_reason.length > 50 ? '…' : ''}`}
                 </p>
               </div>
               <div className="flex items-center gap-4 text-xs text-slate-500">
@@ -612,6 +707,9 @@ function ReviewerList({
                       Expires {formatDate(req.expires_at)}
                     </span>
                   )}
+                {unread && (
+                  <span className="h-2.5 w-2.5 rounded-full bg-indigo-500 animate-pulse shrink-0" />
+                )}
                 <ChevronRight className="h-4 w-4 text-slate-400 group-hover:text-indigo-500 group-hover:translate-x-0.5 transition" />
               </div>
             </div>

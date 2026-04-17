@@ -49,3 +49,4 @@ class User(Base):
         foreign_keys="VerificationRequest.assigned_reviewer_id",
     )
     messages = relationship("Message", back_populates="sender")
+    notifications = relationship("Notification", back_populates="user")
