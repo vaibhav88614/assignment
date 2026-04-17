@@ -48,25 +48,18 @@ class Settings(BaseSettings):
     ISSUER_ORG_NAME: str = "AIV Verification Services"
     ISSUER_ORG_ADDRESS: str = "123 Verification Lane, New York, NY 10001"
 
-    # CORS
-    CORS_ORIGINS: list[str] = ["http://localhost:5173", "http://localhost:3000"]
+    # CORS — stored as a plain string to avoid pydantic-settings JSON parsing.
+    # Accepts: comma-separated URLs or a JSON array string.
+    CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000"
 
-    @field_validator("CORS_ORIGINS", mode="before")
-    @classmethod
-    def parse_cors_origins(cls, value: object) -> list[str]:
-        if isinstance(value, list):
-            return value
-        if isinstance(value, str):
-            value = value.strip()
-            if not value:
-                return ["http://localhost:5173"]
-            # Try JSON first: ["https://example.com"]
-            if value.startswith("["):
-                import json
-                return json.loads(value)
-            # Comma-separated: https://a.com,https://b.com
-            return [v.strip() for v in value.split(",") if v.strip()]
-        return ["http://localhost:5173"]
+    def get_cors_origins(self) -> list[str]:
+        value = self.CORS_ORIGINS.strip()
+        if not value:
+            return ["http://localhost:5173"]
+        if value.startswith("["):
+            import json
+            return json.loads(value)
+        return [v.strip() for v in value.split(",") if v.strip()]
 
     @field_validator("DEBUG", mode="before")
     @classmethod
