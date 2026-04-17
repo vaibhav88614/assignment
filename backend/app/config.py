@@ -51,6 +51,23 @@ class Settings(BaseSettings):
     # CORS
     CORS_ORIGINS: list[str] = ["http://localhost:5173", "http://localhost:3000"]
 
+    @field_validator("CORS_ORIGINS", mode="before")
+    @classmethod
+    def parse_cors_origins(cls, value: object) -> list[str]:
+        if isinstance(value, list):
+            return value
+        if isinstance(value, str):
+            value = value.strip()
+            if not value:
+                return ["http://localhost:5173"]
+            # Try JSON first: ["https://example.com"]
+            if value.startswith("["):
+                import json
+                return json.loads(value)
+            # Comma-separated: https://a.com,https://b.com
+            return [v.strip() for v in value.split(",") if v.strip()]
+        return ["http://localhost:5173"]
+
     @field_validator("DEBUG", mode="before")
     @classmethod
     def normalize_debug(cls, value: object) -> bool:
