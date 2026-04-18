@@ -539,6 +539,21 @@ export default function NewRequestPage() {
                     <p className="text-sm text-slate-600 mt-1 leading-relaxed">
                       {METHOD_DESCRIPTIONS[m]}
                     </p>
+                    {/* Required documents preview */}
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {REQUIRED_DOCUMENTS[m].map((doc) => (
+                        <span
+                          key={doc.type}
+                          className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${
+                            doc.required
+                              ? 'bg-red-50 text-red-600 ring-1 ring-red-200'
+                              : 'bg-slate-50 text-slate-500 ring-1 ring-slate-200'
+                          }`}
+                        >
+                          {doc.label} {doc.required ? '(Required)' : '(Optional)'}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                   {selected && (
                     <span className="absolute top-3 right-3 h-5 w-5 rounded-full bg-indigo-600 text-white flex items-center justify-center">
@@ -748,6 +763,7 @@ export default function NewRequestPage() {
                           <FileUpload
                             onUpload={(file) => handleUpload(file, reqDoc.type)}
                             uploading={uploading}
+                            documentType={reqDoc.type}
                           />
                         </div>
                       )}

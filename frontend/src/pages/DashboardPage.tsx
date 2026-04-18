@@ -17,6 +17,7 @@ import {
   Sparkles,
   Mail,
   AlertTriangle,
+  Eye,
 } from 'lucide-react';
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
@@ -41,7 +42,7 @@ function isDeadlineDenial(reason: string | null): boolean {
   return !!reason && reason.startsWith('Automatically denied');
 }
 
-type ReviewerFilter = 'all' | 'unclaimed' | 'mine' | 'accepted' | 'rejected';
+type ReviewerFilter = 'all' | 'unclaimed' | 'mine' | 'accepted' | 'rejected' | 'info_requested' | 'under_review';
 
 function relativeTime(iso: string | null): string {
   if (!iso) return '—';
@@ -141,6 +142,9 @@ export default function DashboardPage() {
       infoRequested: requests.filter(
         (r) => r.status === RequestStatus.INFO_REQUESTED
       ).length,
+      underReview: requests.filter(
+        (r) => r.status === RequestStatus.UNDER_REVIEW
+      ).length,
     };
     return base;
   }, [requests, user?.id]);
@@ -158,6 +162,10 @@ export default function DashboardPage() {
         return requests.filter((r) => r.status === RequestStatus.APPROVED);
       case 'rejected':
         return requests.filter((r) => r.status === RequestStatus.DENIED);
+      case 'info_requested':
+        return requests.filter((r) => r.status === RequestStatus.INFO_REQUESTED);
+      case 'under_review':
+        return requests.filter((r) => r.status === RequestStatus.UNDER_REVIEW);
       case 'all':
       default:
         return requests;
@@ -297,14 +305,25 @@ export default function DashboardPage() {
               hint="Submitted · needs a reviewer"
               highlight={stats.unclaimed > 0}
             />
+            {user?.role !== UserRole.ADMIN && (
+              <ReviewerKpi
+                label="Assigned to me"
+                value={stats.mine}
+                icon={UserCheck}
+                accent="from-indigo-50 to-white"
+                iconBg="bg-indigo-100 text-indigo-600"
+                hint="Currently owned by you"
+                onClick={() => setFilter('mine')}
+              />
+            )}
             <ReviewerKpi
-              label="Assigned to me"
-              value={stats.mine}
-              icon={UserCheck}
-              accent="from-indigo-50 to-white"
-              iconBg="bg-indigo-100 text-indigo-600"
-              hint="Currently owned by you"
-              onClick={() => setFilter('mine')}
+              label="Under Review"
+              value={stats.underReview}
+              icon={Eye}
+              accent="from-blue-50 to-white"
+              iconBg="bg-blue-100 text-blue-600"
+              hint="Currently being reviewed"
+              onClick={() => setFilter('under_review')}
             />
             <ReviewerKpi
               label="Awaiting info"
@@ -313,26 +332,30 @@ export default function DashboardPage() {
               accent="from-amber-50 to-white"
               iconBg="bg-amber-100 text-amber-600"
               hint="Investors owe documents"
-              onClick={() => setFilter('all')}
+              onClick={() => setFilter('info_requested')}
             />
-            <ReviewerKpi
-              label="Approval rate"
-              value={`${approvalRate}%`}
-              icon={CheckCircle2}
-              accent="from-emerald-50 to-white"
-              iconBg="bg-emerald-100 text-emerald-600"
-              hint={`${stats.approved} approved`}
-              onClick={() => setFilter('accepted')}
-            />
-            <ReviewerKpi
-              label="Denial rate"
-              value={`${denialRate}%`}
-              icon={XCircle}
-              accent="from-red-50 to-white"
-              iconBg="bg-red-100 text-red-600"
-              hint={`${stats.denied} denied`}
-              onClick={() => setFilter('rejected')}
-            />
+            {user?.role === UserRole.ADMIN && (
+              <>
+                <ReviewerKpi
+                  label="Approval rate"
+                  value={`${approvalRate}%`}
+                  icon={CheckCircle2}
+                  accent="from-emerald-50 to-white"
+                  iconBg="bg-emerald-100 text-emerald-600"
+                  hint={`${stats.approved} approved`}
+                  onClick={() => setFilter('accepted')}
+                />
+                <ReviewerKpi
+                  label="Denial rate"
+                  value={`${denialRate}%`}
+                  icon={XCircle}
+                  accent="from-red-50 to-white"
+                  iconBg="bg-red-100 text-red-600"
+                  hint={`${stats.denied} denied`}
+                  onClick={() => setFilter('rejected')}
+                />
+              </>
+            )}
           </div>
 
           {/* Secondary summary strip */}
@@ -355,12 +378,14 @@ export default function DashboardPage() {
           <div className="flex items-center gap-2 mb-4 overflow-x-auto">
             {(
               [
-                { key: 'all', label: 'All', count: stats.total },
-                { key: 'unclaimed', label: 'Unclaimed', count: stats.unclaimed },
-                { key: 'mine', label: 'My assignments', count: stats.mine },
-                { key: 'accepted', label: 'Accepted', count: stats.approved },
-                { key: 'rejected', label: 'Rejected', count: stats.denied },
-              ] as const
+                { key: 'all' as ReviewerFilter, label: 'All', count: stats.total },
+                { key: 'unclaimed' as ReviewerFilter, label: 'Unclaimed', count: stats.unclaimed },
+                ...(user?.role !== UserRole.ADMIN ? [{ key: 'mine' as ReviewerFilter, label: 'My assignments', count: stats.mine }] : []),
+                { key: 'under_review' as ReviewerFilter, label: 'Under Review', count: stats.underReview },
+                { key: 'info_requested' as ReviewerFilter, label: 'Awaiting Info', count: stats.infoRequested },
+                { key: 'accepted' as ReviewerFilter, label: 'Accepted', count: stats.approved },
+                { key: 'rejected' as ReviewerFilter, label: 'Rejected', count: stats.denied },
+              ]
             ).map(({ key, label, count }) => {
               const active = filter === key;
               return (
@@ -646,6 +671,14 @@ function ReviewerList({
       rejected: {
         title: 'No rejected requests yet',
         body: 'Denied requests will show here.',
+      },
+      info_requested: {
+        title: 'No requests awaiting info',
+        body: 'Requests waiting for investor response will appear here.',
+      },
+      under_review: {
+        title: 'No requests under review',
+        body: 'Requests currently being reviewed will appear here.',
       },
     };
     const copy = emptyCopy[filter];

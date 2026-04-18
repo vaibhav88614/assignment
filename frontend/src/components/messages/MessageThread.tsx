@@ -13,6 +13,7 @@ interface MessageThreadProps {
   onProvideInfo?: (message?: string) => Promise<void>;
   onUpload?: (file: File, documentType: DocumentType) => Promise<void>;
   uploading?: boolean;
+  readOnly?: boolean;
 }
 
 function formatTime(iso: string): string {
@@ -33,6 +34,7 @@ export default function MessageThread({
   onProvideInfo,
   onUpload,
   uploading,
+  readOnly,
 }: MessageThreadProps) {
   const [content, setContent] = useState('');
   const [showUpload, setShowUpload] = useState(false);
@@ -120,6 +122,12 @@ export default function MessageThread({
         <div className="mx-3 mt-2 text-xs text-red-600 bg-red-50 rounded px-2 py-1">{sendError}</div>
       )}
 
+      {readOnly ? (
+        <div className="border-t border-slate-100 p-3 bg-slate-50 text-center">
+          <p className="text-xs text-slate-400">Read-only view</p>
+        </div>
+      ) : (
+      <>
       {/* File upload area for info-requested mode */}
       {showUpload && onUpload && (
         <div className="border-t border-slate-100 p-3 bg-orange-50/50">
@@ -208,6 +216,8 @@ export default function MessageThread({
             <Send className="h-4 w-4" />
           </button>
         </form>
+      )}
+      </>
       )}
     </div>
   );

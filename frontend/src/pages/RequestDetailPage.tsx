@@ -237,7 +237,15 @@ export default function RequestDetailPage() {
       const response = await api.get(`/documents/download/${docId}`, {
         responseType: 'blob',
       });
-      const url = URL.createObjectURL(response.data);
+      const blob = response.data as Blob;
+      // If server returned a JSON error wrapped in a blob, detect and surface it
+      if (blob.type === 'application/json') {
+        const text = await blob.text();
+        const parsed = JSON.parse(text);
+        setError(parsed.detail || 'Download failed');
+        return;
+      }
+      const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
       a.download = filename;
@@ -464,6 +472,10 @@ export default function RequestDetailPage() {
               onProvideInfo={handleProvideInfo}
               onUpload={handleUpload}
               uploading={uploading}
+              readOnly={
+                request.status !== RequestStatus.INFO_REQUESTED &&
+                !messages.some((m) => !m.is_system_message && m.sender_id !== request?.investor_id)
+              }
             />
           </div>
         </div>

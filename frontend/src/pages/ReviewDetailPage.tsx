@@ -141,7 +141,14 @@ export default function ReviewDetailPage() {
       const response = await api.get(`/documents/download/${docId}`, {
         responseType: 'blob',
       });
-      const url = URL.createObjectURL(response.data);
+      const blob = response.data as Blob;
+      if (blob.type === 'application/json') {
+        const text = await blob.text();
+        const parsed = JSON.parse(text);
+        setError(parsed.detail || 'Download failed');
+        return;
+      }
+      const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
       a.download = filename;
@@ -612,6 +619,7 @@ export default function ReviewDetailPage() {
                 messages={messages}
                 onSend={handleSendMessage}
                 sending={sending}
+                readOnly={isAdmin}
               />
             </div>
           </div>

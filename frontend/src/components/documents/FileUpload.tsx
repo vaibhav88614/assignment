@@ -6,12 +6,13 @@ import { DOCUMENT_TYPE_LABELS, formatFileSize } from '../../utils/constants';
 interface FileUploadProps {
   onUpload: (file: File, documentType: DocumentType) => Promise<void>;
   uploading?: boolean;
+  documentType?: DocumentType;
 }
 
-export default function FileUpload({ onUpload, uploading }: FileUploadProps) {
+export default function FileUpload({ onUpload, uploading, documentType }: FileUploadProps) {
   const [dragActive, setDragActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [docType, setDocType] = useState<DocumentType>(DocumentType.OTHER);
+  const [docType, setDocType] = useState<DocumentType>(documentType ?? DocumentType.OTHER);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleDrag = useCallback((e: DragEvent) => {
@@ -41,7 +42,7 @@ export default function FileUpload({ onUpload, uploading }: FileUploadProps) {
 
   const handleUpload = async () => {
     if (!selectedFile) return;
-    await onUpload(selectedFile, docType);
+    await onUpload(selectedFile, documentType ?? docType);
     setSelectedFile(null);
   };
 
@@ -101,7 +102,7 @@ export default function FileUpload({ onUpload, uploading }: FileUploadProps) {
         </div>
       )}
 
-      {selectedFile && (
+      {selectedFile && !documentType && (
         <div className="flex items-center gap-2.5">
           <select
             value={docType}
